@@ -30,14 +30,15 @@ def softmax(x):
 
     if len(x.shape) > 1:
         # Matrix
-        ### YOUR CODE HERE
-        raise NotImplementedError
-        ### END YOUR CODE
+        max_values = np.max(x, axis=1).reshape((x.shape[0], 1))
+        exponents = np.exp(x - max_values)
+        exponents_sums = np.sum(exponents, axis=1).reshape((x.shape[0], 1))
+        x = exponents / exponents_sums
     else:
         # Vector
-        ### YOUR CODE HERE
-        raise NotImplementedError
-        ### END YOUR CODE
+        exponents = np.exp(x - np.max(x))
+        exponents_sums = np.sum(exponents)
+        x = exponents / exponents_sums
 
     assert x.shape == orig_shape
     return x
@@ -76,10 +77,33 @@ def test_softmax():
     This function will not be called by the autograder, nor will
     your tests be graded.
     """
-    print "Running your tests..."
-    ### YOUR CODE HERE
-    raise NotImplementedError
-    ### END YOUR CODE
+    print "Running basic tests..."
+    test1 = softmax(np.array([0,0]))
+    print test1
+    ans1 = np.array([0.5,  0.5])
+    assert np.allclose(test1, ans1, rtol=1e-05, atol=1e-06)
+
+    test2 = softmax(np.array([[0,0],[0,0]]))
+    print test2
+    ans2 = np.array([
+        [0.5, 0.5],
+        [0.5, 0.5]])
+    assert np.allclose(test2, ans2, rtol=1e-05, atol=1e-06)
+
+    test3 = softmax(np.array([[-0.000001,0.00001]]))
+    print test3
+    ans3 = np.array([0.49999725, 0.50000275])
+    assert np.allclose(test3, ans3, rtol=1e-05, atol=1e-06)
+
+    test4 = softmax(np.array([[0]]))
+    print test4
+    ans4 = np.array([1])
+    assert np.allclose(test4, ans4, rtol=1e-05, atol=1e-06)
+
+    test5 = softmax(np.array([[1]]))
+    print test5
+    ans5 = np.array([1])
+    assert np.allclose(test5, ans5, rtol=1e-05, atol=1e-06)
 
 
 if __name__ == "__main__":
