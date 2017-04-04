@@ -75,8 +75,42 @@ plt.savefig('q3_word_vectors.png')
 key_words = ["the", "unique", "superb", "comedy", "surprisingly"]
 inputVectors = wordVectors[:nWords]
 inv_tokens = {v: k for k, v in tokens.iteritems()}
-for key_word in key_words:
-    wordVector = inputVectors[tokens[key_word]]
-    idx = knn(wordVector, inputVectors, 11)
-    print "Words related to \"" + key_word + "\": ",  [inv_tokens[i] for i in idx]
 
+
+import HTML
+
+t = HTML.Table(header_row=key_words)
+N = 11
+rows = [[] for i in xrange(N)]
+
+for column, key_word in enumerate(key_words):
+    wordVector = inputVectors[tokens[key_word]]
+    idx = knn(wordVector, inputVectors, N)
+    nearest = [inv_tokens[i] for i in idx]
+    print "Words related to \"" + key_word + "\": ",  nearest
+    assert len(nearest) == N
+    for column, neighbor in enumerate(nearest):
+        rows[column].append(neighbor)
+
+for r in rows:
+    t.rows.append(r)
+
+print str(t)
+# with open("results.html", "wb") as f:
+#     f.write(str(t))
+
+
+l = [['UNK', 'show-don', 'movie-industry', 't-tell', 'punch-and-judy', 'tech-geeks', 'hirosue', 'sandlerian', 'loosely-connected', 'acting-workshop', 'teen-exploitation'],
+['UNK', 'superficiale', 'fantasti', 'surfacey', 'prefeminist', 'brit-com', 'gone-to-seed', 'the-cash', 'phoned-in', 'director-chef', 'doing-it-for'],
+['UNK', 'fleet-footed', 'revigorates', 'qutting', 'meanspirited', 'screwed-up', 'bone-dry', 'new-agey', 'kids-cute', 'handbag-clutching', 'eye-rolling'],
+['UNK', 'masterpeice', 'munchausen-by-proxy', 'two-wrongs-make-a-right', 'star\\/producer', 'kid-empowerment', 'still-contemporary', 'messing-about', 'wind-in-the-hair', 'razor-sided', 'action-fantasy'],
+['UNK', 'super-cool', 'smart-aleck', 're-assess', 'giant-screen', 'gabbiest', 'not-so-stock', 'feardotcom.com', 'pro-fat', 'wise-cracker', 'consciousness-raiser']]
+
+table = [[l[i][j] for i in xrange(len(l))] for j in xrange(len(l[0]))]
+t = HTML.Table(header_row=key_words)
+for r in table:
+    t.rows.append(r)
+
+print str(t)
+# with open("resultsGlove.html", "wb") as f:
+#     f.write(str(t))
