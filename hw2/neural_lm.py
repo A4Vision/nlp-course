@@ -150,6 +150,27 @@ if __name__ == "__main__":
             params, LEARNING_RATE, NUM_OF_SGD_ITERATIONS, None, True, 1000)
 
     print "training took %d seconds" % (time.time() - startTime)
+    ofs = 0
+    Dx, H, Dy = (dimensions[0], dimensions[1], dimensions[2])
+
+    W1 = np.reshape(params[ofs:ofs+ Dx * H], (Dx, H))
+    ofs += Dx * H
+    b1 = np.reshape(params[ofs:ofs + H], (1, H))
+    ofs += H
+    W2 = np.reshape(params[ofs:ofs + H * Dy], (H, Dy))
+    ofs += H * Dy
+    b2 = np.reshape(params[ofs:ofs + Dy], (1, Dy))
+
+    table = pd.DataFrame(W1).to_html()
+    with open("neural_lm_params.html", "wb") as fout:
+        fout.write('b1\n')
+        fout.write(str(pd.DataFrame(b1).to_html()))
+        fout.write('\nW1\n')
+        fout.write(str(pd.DataFrame(W1).to_html()))
+        fout.write('\nb2\n')
+        fout.write(str(pd.DataFrame(b2).to_html()))
+        fout.write('\nW2\n')
+        fout.write(str(pd.DataFrame(W2).to_html()))
 
     # Evaluate perplexity with dev-data
     perplexity = eval_neural_lm('data/lm/ptb-dev.txt')
