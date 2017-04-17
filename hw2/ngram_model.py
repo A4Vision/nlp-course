@@ -192,7 +192,7 @@ def grid_search_lambda():
                 if current < best_perplexity:
                     best_perplexity = current
                     best_lambda1, best_lambda2 = lambda1, lambda2
-                if current < best_no_trigram_perplexity:
+                if current < best_no_trigram_perplexity and lambda1 == 0:
                     best_no_trigram_perplexity = current
                     best_lambda2_no_trigram = lambda2
             table.rows[-1].append(current)
