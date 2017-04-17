@@ -100,14 +100,12 @@ def eval_neural_lm(eval_data_path):
 
     perplexity = 0
     ### YOUR CODE HERE
-    total_cost = 0
+    costs = np.zeros(num_of_examples)
     for i in xrange(num_of_examples):
         data = num_to_word_embedding[in_word_index[i]]
         label = out_word_index[i]
-        cost = forward(data, label, params=params, dimensions=dimensions)
-        total_cost += np.log2(cost)
-
-    perplexity = 2 ** -(total_cost/num_of_examples)
+        costs[i] = forward(data, label, params, dimensions)
+    perplexity = np.power(2, -np.sum(np.log(costs), axis=0) / num_of_examples)
     ### END YOUR CODE
 
     return perplexity

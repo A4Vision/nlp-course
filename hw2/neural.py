@@ -32,7 +32,7 @@ def forward(data, label, params, dimensions):
     h = sigmoid(theta_1)
     theta_2 = np.dot(h, W2) + b2
     y_hat = softmax(theta_2)
-    return -np.sum(label * np.log(y_hat))
+    return y_hat.T[label]
     ### END YOUR CODE
 
 def forward_backward_prop(data, labels, params, dimensions):
