@@ -76,7 +76,13 @@ def lm_wrapper(in_word_index, out_word_index, num_to_word_embedding, dimensions,
 
     # Construct the data batch and run you backpropogation implementation
     ### YOUR CODE HERE
-    raise NotImplementedError
+    upper_limit = len(in_word_index)
+    indices_in_batch = np.random.randint(0, upper_limit, BATCH_SIZE)
+    for i, ind in enumerate(indices_in_batch):
+        data[i, :] = num_to_word_embedding[in_word_index[ind]]
+        labels[i, :] = int_to_one_hot(out_word_index[ind], dimensions[2])
+
+    cost, grad = forward_backward_prop(data, labels, params, dimensions)
     ### END YOUR CODE
 
     cost /= BATCH_SIZE
@@ -94,7 +100,12 @@ def eval_neural_lm(eval_data_path):
 
     perplexity = 0
     ### YOUR CODE HERE
-    raise NotImplementedError
+    costs = np.zeros(num_of_examples)
+    for i in xrange(num_of_examples):
+        data = num_to_word_embedding[in_word_index[i]]
+        label = out_word_index[i]
+        costs[i] = forward(data, label, params, dimensions)
+    perplexity = np.power(2, -np.sum(np.log(costs), axis=0) / num_of_examples)
     ### END YOUR CODE
 
     return perplexity
@@ -139,6 +150,27 @@ if __name__ == "__main__":
             params, LEARNING_RATE, NUM_OF_SGD_ITERATIONS, None, True, 1000)
 
     print "training took %d seconds" % (time.time() - startTime)
+    ofs = 0
+    Dx, H, Dy = (dimensions[0], dimensions[1], dimensions[2])
+
+    W1 = np.reshape(params[ofs:ofs+ Dx * H], (Dx, H))
+    ofs += Dx * H
+    b1 = np.reshape(params[ofs:ofs + H], (1, H))
+    ofs += H
+    W2 = np.reshape(params[ofs:ofs + H * Dy], (H, Dy))
+    ofs += H * Dy
+    b2 = np.reshape(params[ofs:ofs + Dy], (1, Dy))
+
+    table = pd.DataFrame(W1).to_html()
+    with open("neural_lm_params.html", "wb") as fout:
+        fout.write('b1\n')
+        fout.write(str(pd.DataFrame(b1).to_html()))
+        fout.write('\nW1\n')
+        fout.write(str(pd.DataFrame(W1).to_html()))
+        fout.write('\nb2\n')
+        fout.write(str(pd.DataFrame(b2).to_html()))
+        fout.write('\nW2\n')
+        fout.write(str(pd.DataFrame(W2).to_html()))
 
     # Evaluate perplexity with dev-data
     perplexity = eval_neural_lm('data/lm/ptb-dev.txt')
