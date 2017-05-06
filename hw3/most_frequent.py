@@ -1,5 +1,7 @@
 import collections
 import functools
+import random
+
 from data import *
 
 
@@ -36,19 +38,23 @@ def most_frequent_eval(sentences, pred_tags, crafted_only):
             if pred_tags[word] == tag:
                 count_good += 1
             total_count += 1
+    print total_count
     return float(count_good) / total_count
     ### END YOUR CODE
 
 
 if __name__ == "__main__":
-    train_sents = read_conll_pos_file("Penn_Treebank/train.gold.conll")
-    dev_sents = read_conll_pos_file("Penn_Treebank/dev.gold.conll")
+    a = read_conll_pos_file("Penn_Treebank/train.gold.conll")
+    b = read_conll_pos_file("Penn_Treebank/dev.gold.conll")
+    dev_sents = random.sample(a + b, len(b))
+    train_sents = [x for x in a + b if x not in dev_sents]
     vocab = compute_vocab_count(train_sents)
     train_sents = preprocess_sent(vocab, train_sents)
     dev_sents = preprocess_sent(vocab, dev_sents)
 
     model = most_frequent_train(train_sents)
-    print "accuracy on crafted category words: {}".format(most_frequent_eval(dev_sents, model, True))
+    print "accuracy on crafted category words (dev): {}".format(most_frequent_eval(dev_sents, model, True))
+
     print "dev: most frequent acc: {}".format(most_frequent_eval(dev_sents, model, False))
 
     if os.path.exists('Penn_Treebank/test.gold.conll'):
