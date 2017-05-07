@@ -1,7 +1,7 @@
 import os
 import re
 
-MIN_FREQ = 3
+MIN_FREQ = 2
 
 
 
@@ -70,14 +70,16 @@ def compute_vocab_count(sents):
 # initCap Sally Capitalized word
 # lowercase can Uncapitalized word
 # other , Punctuation marks, all other words
-CRAFTED_CATEGORIES = ['twoDigitNum', 'fourDigitNum', 'othernum',
+SUFFIXES = ('ed', 'es', 'us', 's', 'able', 'ing', 'al', 'ic', 'ly')
+CRAFTED_CATEGORIES = [x + 'Word' for x in SUFFIXES] + ['withDash', 'beginReWord',
+    'twoDigitNum', 'fourDigitNum', 'othernum',
                       'containsDigitAndAlpha', 'containsDigitAndDash',
                       'containsDigitAndSlash', 'containsDigitAndPeriod',
                       'allCaps', 'capPeriod', 'firstWord', 'initCap',
                       'lowercase', 'UNK']
 
 
-def replace_word(word, is_first):
+def replace_word(word, is_first, vocab):
     """
         Replaces rare words with categories (numbers, dates, etc...)
     """
@@ -102,10 +104,19 @@ def replace_word(word, is_first):
         return 'allCaps'
     elif CAP_PERIOD_PATTERN.match(word):
         return 'capPeriod'
-    elif is_first:
-        return 'firstWord'
-    elif word[0].isupper():
-        return 'initCap'
+    if word.isalpha():
+        for suffix in SUFFIXES:
+            if word.endswith(suffix):
+                return suffix + 'Word'
+    if word.isalpha() and word.startswith('re'):
+        return 'beginReWord'
+    if '-' in word:
+        return 'withDash'
+    elif word[0].isupper() and is_first:
+        if vocab.get(word.lower(), 0) >= MIN_FREQ:
+            return word.lower()
+        else:
+            return 'firstWord'
     elif word.isalpha() and word.lower() == word:
         return 'lowercase'
     ### END YOUR CODE
@@ -138,8 +149,8 @@ def preprocess_sent(vocab, sents):
             if token[0] in vocab and vocab[token[0]] >= MIN_FREQ:
                 new_sent.append(token)
             else:
-                r = replace_word(token[0], is_first)
-                assert r in CRAFTED_CATEGORIES
+                r = replace_word(token[0], is_first, vocab)
+                assert r in CRAFTED_CATEGORIES or vocab
                 new_sent.append((r, token[1]))
                 replaced += 1
             total += 1

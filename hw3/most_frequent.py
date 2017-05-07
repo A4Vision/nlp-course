@@ -23,7 +23,7 @@ def most_frequent_train(train_data):
     ### END YOUR CODE
 
 
-def most_frequent_eval(sentences, pred_tags, crafted_only):
+def most_frequent_eval(original_sentences, sentences, pred_tags, crafted_only):
     """
     Gets test data and tag prediction map.
     Returns an evaluation of the accuracy of the most frequent tagger.
@@ -31,12 +31,14 @@ def most_frequent_eval(sentences, pred_tags, crafted_only):
     ### YOUR CODE HERE
     count_good = 0
     total_count = 0
-    for sentence in sentences:
-        for word, tag in sentence:
+    for original_sentence, sentence in zip(original_sentences, sentences):
+        for (orig_word, _), (word, tag) in zip(original_sentence, sentence):
             if crafted_only and word not in CRAFTED_CATEGORIES:
                 continue
             if pred_tags[word] == tag:
                 count_good += 1
+            elif crafted_only:
+                print orig_word, word, tag, pred_tags[word]
             total_count += 1
     print total_count
     return float(count_good) / total_count
@@ -44,18 +46,18 @@ def most_frequent_eval(sentences, pred_tags, crafted_only):
 
 
 if __name__ == "__main__":
+    assert most_frequent(collections.Counter([1, 2, 1, 1, 2, 3,])) == 1
     a = read_conll_pos_file("Penn_Treebank/train.gold.conll")
     b = read_conll_pos_file("Penn_Treebank/dev.gold.conll")
-    dev_sents = random.sample(a + b, len(b))
-    train_sents = [x for x in a + b if x not in dev_sents]
+    dev_sents1 = random.sample(a + b, len(b))
+    train_sents = [x for x in a + b if x not in dev_sents1]
     vocab = compute_vocab_count(train_sents)
     train_sents = preprocess_sent(vocab, train_sents)
-    dev_sents = preprocess_sent(vocab, dev_sents)
+    dev_sents = preprocess_sent(vocab, dev_sents1)
 
     model = most_frequent_train(train_sents)
-    print "accuracy on crafted category words (dev): {}".format(most_frequent_eval(dev_sents, model, True))
-
-    print "dev: most frequent acc: {}".format(most_frequent_eval(dev_sents, model, False))
+    print "accuracy on crafted category words (dev): {}".format(most_frequent_eval(dev_sents1, dev_sents, model, True))
+    print "dev: most frequent acc: {}".format(most_frequent_eval(dev_sents, dev_sents, model, True))
 
     if os.path.exists('Penn_Treebank/test.gold.conll'):
         test_sents = read_conll_pos_file("Penn_Treebank/test.gold.conll")

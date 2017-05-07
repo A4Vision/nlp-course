@@ -180,7 +180,7 @@ def main():
 
     total_tokens, q_tri_counts, q_bi_counts, q_uni_counts, e_word_tag_counts, e_tag_counts = hmm_train(train_sents)
 
-    for l1, l2 in itertools.product([0.4, 0.5, 0.6, 0.7], [0.05, 0.1, 0.2, 0.3, 0.4]):
+    for l1, l2 in itertools.product([0.95, 0.98, 0.99], [0.005, 0.01, 0.02, 0.03]):
         if l1 + l2 >= 1:
             continue
         acc_viterbi = hmm_eval(dev_sents, total_tokens, q_tri_counts, q_bi_counts, q_uni_counts, e_word_tag_counts,
@@ -192,7 +192,7 @@ def main():
         test_sents = read_conll_pos_file("Penn_Treebank/test.gold.conll")
         test_sents = preprocess_sent(vocab, test_sents)
         acc_viterbi = hmm_eval(test_sents, total_tokens, q_tri_counts, q_bi_counts, q_uni_counts,
-                               e_word_tag_counts, e_tag_counts)
+                               e_word_tag_counts, e_tag_counts, 0.98, 0.01)
         print "test: acc hmm viterbi: {}".format(acc_viterbi)
 
 if __name__ == '__main__':
