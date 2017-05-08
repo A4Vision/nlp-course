@@ -11,7 +11,19 @@ def extract_features_base(curr_word, next_word, prev_word, prevprev_word, prev_t
     features = {}
     features['word'] = curr_word
     ### YOUR CODE HERE
-    raise NotImplementedError
+    features['prev_tag'] = prev_tag
+    features['word, prev_tag'] = curr_word + ' ' + prev_tag
+    features['bigram'] = prev_word + ', ' + curr_word
+    features['trigram'] = prevprev_word + ' ' + prev_word + ' ' + curr_word
+    features['prev_bigram'] = prevprev_word + ' ' + prev_word
+    features['next_bigram'] = curr_word + ' ' + next_word
+    features['next_trigram'] = prev_word + ' ' + curr_word + ' ' + next_word
+    features['prev_word, prevprev_tag'] = prev_word + ' ' + prevprev_tag
+    features['next_word, prev_tag'] = next_word + ' ' + prev_tag
+    features['tag_bigram'] = prev_tag + ' ' + prevprev_tag
+    # for i in xrange(5):
+    #     features['prefix #' + str(i) + ', tag'] = curr_word[:i] + ' ' + prev_tag
+    #     features['suffix #' + str(i) + ', tag'] = curr_word[:i] + ' ' + prev_tag
     ### END YOUR CODE
     return features
 
@@ -55,7 +67,13 @@ def memm_greeedy(sent, logreg, vec):
     """
     predicted_tags = [""] * (len(sent))
     ### YOUR CODE HERE
-    raise NotImplementedError
+    sent_with_tags = map(lambda i: [sent[i], ''], range(len(sent)))
+    for i in xrange(len(sent)):
+        features = extract_features(sent_with_tags, i)
+        vec_features = vectorize_features(vec, features)
+        predicted_tags[i] = index_to_tag_dict[logreg.predict(vec_features).item()]
+        sent_with_tags[i][1] = predicted_tags[i]
+
     ### END YOUR CODE
     return predicted_tags
 
@@ -66,7 +84,14 @@ def memm_viterbi(sent, logreg, vec):
     """
     predicted_tags = [""] * (len(sent))
     ### YOUR CODE HERE
-    raise NotImplementedError
+    # for i in xrange(len(sent)):
+    #     print sent[i]
+    #     features = extract_features(sent, i)
+    #     vec_features = vectorize_features(vec, features)
+    #     print logreg.predict(vec_features)
+    # backpointers = [[-1] * len(vec.get_feature_names())] * len(sent)
+    # scores = [[0] * len(vec.get_feature_names())] * len(sent)
+    position = 0
     ### END YOUR CODE
     return predicted_tags
 
@@ -77,12 +102,32 @@ def memm_eval(test_data, logreg, vec):
     """
     acc_viterbi, acc_greedy = 0.0, 0.0
     ### YOUR CODE HERE
-    raise NotImplementedError
+    count_total_greedy = 0
+    count_good_greedy = 0
+    count_total_viterbi = 0
+    count_good_viterbi = 0
+    for sentence in test_data:
+        words = [word for word, tag in sentence]
+        greedy_tags = memm_greeedy(words, logreg, vec)
+        print sentence
+        print greedy_tags
+        viterbi_tags = memm_viterbi(words, logreg, vec)
+        for (word, tag), memm_tag in zip(sentence, greedy_tags):
+            if tag == memm_tag:
+                count_good_greedy += 1
+            count_total_greedy += 1
+        for (word, tag), memm_tag in zip(sentence, viterbi_tags):
+            # if tag == index_to_tag_dict[memm_tag.item()]:
+            #     count_good_viterbi += 1
+            count_total_viterbi += 1
+    assert count_total_viterbi == count_total_greedy
+    acc_greedy = str(float(count_good_greedy) / count_total_greedy)
+    acc_viterbi = str(float(count_good_viterbi) / count_total_viterbi)
     ### END YOUR CODE
     return acc_viterbi, acc_greedy
 
 if __name__ == "__main__":
-    train_sents = read_conll_pos_file("Penn_Treebank/train.gold.conll")
+    train_sents = read_conll_pos_file("Penn_Treebank/train.gold.conll")[:2000]
     dev_sents = read_conll_pos_file("Penn_Treebank/dev.gold.conll")
 
     vocab = compute_vocab_count(train_sents)
