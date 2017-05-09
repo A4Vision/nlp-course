@@ -40,7 +40,6 @@ def most_frequent_eval(original_sentences, sentences, pred_tags, crafted_only):
             elif crafted_only:
                 print orig_word, word, tag, pred_tags[word]
             total_count += 1
-    print total_count
     return float(count_good) / total_count
     ### END YOUR CODE
 
@@ -62,4 +61,4 @@ if __name__ == "__main__":
     if os.path.exists('Penn_Treebank/test.gold.conll'):
         test_sents = read_conll_pos_file("Penn_Treebank/test.gold.conll")
         test_sents = preprocess_sent(vocab, test_sents)
-        print "test: most frequent acc: {}".format(most_frequent_eval(test_sents, model, False))
+        print "test: most frequent acc: {}".format(most_frequent_eval(test_sents, test_sents, model, False))

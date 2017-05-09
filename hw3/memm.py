@@ -1,7 +1,21 @@
-from data import *
+import os
+import utils
+import sys
+import time
+import cPickle
+import collections
+import numpy as np
+import math
 from sklearn.feature_extraction import DictVectorizer
 from sklearn import linear_model
-import time
+from data import *
+
+BEGIN_TAG = '*'
+END_TAG = 'STOP'
+
+SUFFIXES = ('ed', 'es', 'us', 's', 'able', 'ing', 'al', 'ic', 'ly', 'tion')
+PREFIXES = ('re', 'dis', 'un')
+
 
 def extract_features_base(curr_word, next_word, prev_word, prevprev_word, prev_tag, prevprev_tag):
     """
@@ -9,17 +23,34 @@ def extract_features_base(curr_word, next_word, prev_word, prevprev_word, prev_t
         Rerutns: The word's features.
     """
     features = {}
-    features['word'] = curr_word
     ### YOUR CODE HERE
-    raise NotImplementedError
+    # All words
+    features['word'] = curr_word
+    features['next_word'] = next_word
+    features['prev_word'] = prev_word
+    features['prevprev_word'] = prevprev_word
+
+    # All tags
+    features['prev_tag'] = prev_tag
+    features['prevprev_tag'] = prevprev_tag
+    features['tag_bigram'] = prev_tag + ' ' + prevprev_tag
+
+    features['prev_word_tag'] = prev_word + ' ' + prev_tag
+    features['prevprev_word_tag'] = prevprev_word + ' ' + prevprev_tag
+
+    for suffix in SUFFIXES:
+        features['suffix_{}'.format(suffix)] = int(curr_word.endswith(suffix))
+    for prefix in PREFIXES:
+        features['prefix_{}'.format(prefix)] = int(curr_word.startswith(prefix))
+
     ### END YOUR CODE
     return features
 
 def extract_features(sentence, i):
     curr_word = sentence[i][0]
-    prev_token = sentence[i - 1] if i > 0 else ('<s>', '*')
-    prevprev_token = sentence[i - 2] if i > 1 else ('<s>', '*')
-    next_token = sentence[i + 1] if i < (len(sentence) - 1) else ('</s>', 'STOP')
+    prev_token = sentence[i - 1] if i > 0 else ('<s>', BEGIN_TAG)
+    prevprev_token = sentence[i - 2] if i > 1 else ('<s>', BEGIN_TAG)
+    next_token = sentence[i + 1] if i < (len(sentence) - 1) else ('</s>', END_TAG)
     return extract_features_base(curr_word, next_token[0], prev_token[0], prevprev_token[0], prev_token[1], prevprev_token[1])
 
 def vectorize_features(vec, features):
@@ -33,6 +64,7 @@ def vectorize_features(vec, features):
     """
     example = [features]
     return vec.transform(example)
+
 
 def create_examples(sents):
     print "building examples"
@@ -48,6 +80,7 @@ def create_examples(sents):
     return examples, labels
     print "done"
 
+
 def memm_greeedy(sent, logreg, vec):
     """
         Receives: a sentence to tag and the parameters learned by hmm
@@ -55,35 +88,133 @@ def memm_greeedy(sent, logreg, vec):
     """
     predicted_tags = [""] * (len(sent))
     ### YOUR CODE HERE
-    raise NotImplementedError
+    sent_with_tags = map(lambda i: [sent[i], ''], range(len(sent)))
+    for i in xrange(len(sent)):
+        features = extract_features(sent_with_tags, i)
+        vec_features = vectorize_features(vec, features)
+        predicted_tags[i] = index_to_tag_dict[logreg.predict(vec_features).item()]
+        sent_with_tags[i][1] = predicted_tags[i]
+
     ### END YOUR CODE
     return predicted_tags
+
+
+t1_timer = t = utils.Timer("None")
+
 
 def memm_viterbi(sent, logreg, vec):
     """
         Receives: a sentence to tag and the parameters learned by hmm
         Rerutns: predicted tags for the sentence
     """
-    predicted_tags = [""] * (len(sent))
+    global t1_timer
     ### YOUR CODE HERE
-    raise NotImplementedError
+    layer = {(BEGIN_TAG, BEGIN_TAG): 0}
+    back_pointers = []
+    SMALL = -99999.
+    sizes = []
+
+    for i, word in enumerate(sent):
+        new_layer = collections.defaultdict(lambda: SMALL)
+        current_back_pointers = {}
+        t1_timer.start_part("prediction")
+        wu2probs = array_calculate_tagging_probs(sent, i, layer.keys(), logreg, vec)
+
+        t1_timer.start_part("loop")
+        for tag_index, v in index_to_tag_dict.iteritems():
+            for (w, u), prev_log_prob in layer.iteritems():
+                current_log_probs = wu2probs[(w, u)]
+                if current_log_probs[tag_index] < -10.:
+                    continue
+                log_prob_wuv = prev_log_prob + current_log_probs[tag_index]
+                if log_prob_wuv > new_layer[(u, v)]:
+                    new_layer[(u, v)] = log_prob_wuv
+                    current_back_pointers[(u, v)] = w
+        t1_timer.start_part("None")
+        back_pointers.append(current_back_pointers)
+        layer = {key: value for key, value in new_layer.iteritems() if value > SMALL}
+        sizes.append(len(layer))
+    print sizes
+    two_final_tags = max(layer.items(), key=lambda ((u, v), log_prob): log_prob)[0]
+    predicted_tags = list(two_final_tags)
+    for current_back_pointers in back_pointers[::-1][:-2]:
+        w = current_back_pointers[tuple(predicted_tags[:2])]
+        predicted_tags.insert(0, w)
     ### END YOUR CODE
     return predicted_tags
+
+
+def calculate_tagging_probs(sent, i, w, u, logreg, vec):
+    sent_with_tags = map(list, zip(sent, [None] * len(sent)))
+    if i > 1:
+        sent_with_tags[i - 2][1] = w
+    if i > 0:
+        sent_with_tags[i - 1][1] = u
+    features = extract_features(sent_with_tags, i)
+    vec_features = vectorize_features(vec, features)
+    return logreg.predict_proba(vec_features)[0]
+
+
+def array_calculate_tagging_probs(sent, i, w_u_list, logreg, vec):
+    # w_u_list is list of (w, u)
+    all_features_vecs = []
+    for w, u in w_u_list:
+        sent_with_tags = map(list, zip(sent, [None] * len(sent)))
+        if i > 1:
+            sent_with_tags[i - 2][1] = w
+        if i > 0:
+            sent_with_tags[i - 1][1] = u
+        features = extract_features(sent_with_tags, i)
+        all_features_vecs.append(features)
+    sparse_features = vec.transform(all_features_vecs)
+    probs_vecs = np.log(logreg.predict_proba(sparse_features))
+    return {(w, u): probs_vecs[j] for j, (w, u) in enumerate(w_u_list)}
+
 
 def memm_eval(test_data, logreg, vec):
     """
     Receives: test data set and the parameters learned by hmm
     Returns an evaluation of the accuracy of hmm & greedy hmm
     """
+    global t1_timer
     acc_viterbi, acc_greedy = 0.0, 0.0
     ### YOUR CODE HERE
-    raise NotImplementedError
+    count_good_greedy = 0
+    count_total = 0
+    count_good_viterbi = 0
+    start_time = time.time()
+    N = 5
+    for i_loop, sentence in enumerate(test_data):
+        if i_loop % N == 1:
+            elapsed = time.time() - start_time
+            per_iteration_time = elapsed / i_loop
+            print t1_timer
+            print 'time left', (len(test_data) - i_loop) * per_iteration_time
+            print 'acc greedy so far:', str(float(count_good_greedy) / count_total)
+            print 'acc viterbi so far:', str(float(count_good_viterbi) / count_total)
+        words = [word for word, tag in sentence]
+        greedy_tags = memm_greeedy(words, logreg, vec)
+        viterbi_tags = memm_viterbi(words, logreg, vec)
+        real_tags = [tag for (word, tag) in sentence]
+        count_good_greedy += equal_amount(real_tags, greedy_tags)
+        count_good_viterbi += equal_amount(real_tags, viterbi_tags)
+        count_total += len(real_tags)
+    acc_greedy = str(float(count_good_greedy) / count_total)
+    acc_viterbi = str(float(count_good_viterbi) / count_total)
     ### END YOUR CODE
     return acc_viterbi, acc_greedy
 
+
+def equal_amount(l1, l2):
+    return sum([1 for x, y in zip(l1, l2) if x == y])
+
+
 if __name__ == "__main__":
-    train_sents = read_conll_pos_file("Penn_Treebank/train.gold.conll")
+    num_samples = int(sys.argv[1])
+    FNAME = sys.argv[2]
+    train_sents = read_conll_pos_file("Penn_Treebank/train.gold.conll")[:num_samples]
     dev_sents = read_conll_pos_file("Penn_Treebank/dev.gold.conll")
+
 
     vocab = compute_vocab_count(train_sents)
     train_sents = preprocess_sent(vocab, train_sents)
@@ -121,14 +252,20 @@ if __name__ == "__main__":
     train_examples_vectorized = all_examples_vectorized[:num_train_examples]
     dev_examples_vectorized = all_examples_vectorized[num_train_examples:]
     print "Done"
-
-    logreg = linear_model.LogisticRegression(
-        multi_class='multinomial', max_iter=128, solver='lbfgs', C=100000, verbose=1)
-    print "Fitting..."
-    start = time.time()
-    logreg.fit(train_examples_vectorized, train_labels)
-    end = time.time()
-    print "done, " + str(end - start) + " sec"
+    print "fname", FNAME
+    if os.path.exists(FNAME):
+        with open(FNAME, "rb") as f_in:
+            logreg = cPickle.load(f_in)
+    else:
+        logreg = linear_model.LogisticRegression(
+            multi_class='multinomial', max_iter=128, solver='lbfgs', C=100000, verbose=1, n_jobs=8)
+        print "Fitting..."
+        start = time.time()
+        logreg.fit(train_examples_vectorized, train_labels)
+        with open(FNAME, "wb") as f_out:
+            cPickle.dump(logreg, f_out)
+        end = time.time()
+        print "done, " + str(end - start) + " sec"
     #End of log linear model training
 
     acc_viterbi, acc_greedy = memm_eval(dev_sents, logreg, vec)
