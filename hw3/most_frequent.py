@@ -53,8 +53,8 @@ def most_frequent_debug_categories(original_sentences, sentences, pred_tags):
                 continue
             if pred_tags[word] == tag:
                 count_good += 1
-            else:
-                print '{}\t{}\t{}\t{}'.format(original_word, word, tag, pred_tags[word])
+            # else:
+            #     print '{}\t{}\t{}\t{}'.format(original_word, word, tag, pred_tags[word])
             total_count += 1
     return float(count_good) / total_count
     ### END YOUR CODE
