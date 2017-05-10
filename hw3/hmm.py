@@ -109,7 +109,6 @@ def hmm_viterbi(sentence_words, total_tokens, q_tri_counts, q_bi_counts, q_uni_c
             if e(word, v, e_tag_counts, e_word_tag_counts) == 0:
                 continue
             for (w, u), prev_log_prob in layer.iteritems():
-                #     TODO(Assaf): replace the dynamic use of q() with a small table.
                 log_prob_wuv = (prev_log_prob + math.log(q(w, u, v,
                                                            q_tri_counts, q_bi_counts, q_uni_counts, total_tokens,
                                                            lambda1, lambda2))
@@ -180,19 +179,25 @@ def main():
 
     total_tokens, q_tri_counts, q_bi_counts, q_uni_counts, e_word_tag_counts, e_tag_counts = hmm_train(train_sents)
 
-    for l1, l2 in itertools.product([0.95, 0.98, 0.99], [0.005, 0.01, 0.02, 0.03]):
+    best_lambdas = 0, 0
+    best_accuracy = 0
+    for l1, l2 in itertools.product([0.98, 0.99], [0.001, 0.005, 0.01, 0.015]):
         if l1 + l2 >= 1:
             continue
         acc_viterbi = hmm_eval(dev_sents, total_tokens, q_tri_counts, q_bi_counts, q_uni_counts, e_word_tag_counts,
-                               e_tag_counts,
-                               l1, l2)
-        print "dev: acc hmm viterbi: {},{},{}".format(l1, l2, acc_viterbi)
+                               e_tag_counts, l1, l2)
+        if acc_viterbi > best_accuracy:
+            best_lambdas = (l1, l2)
+            best_accuracy = acc_viterbi
+    print 'best lambdas', best_lambdas
+    print "dev: acc hmm viterbi: {}".format(best_accuracy)
 
     if os.path.exists("Penn_Treebank/test.gold.conll"):
         test_sents = read_conll_pos_file("Penn_Treebank/test.gold.conll")
         test_sents = preprocess_sent(vocab, test_sents)
+        l1, l2 = best_lambdas
         acc_viterbi = hmm_eval(test_sents, total_tokens, q_tri_counts, q_bi_counts, q_uni_counts,
-                               e_word_tag_counts, e_tag_counts, 0.98, 0.01)
+                               e_word_tag_counts, e_tag_counts, l1, l2)
         print "test: acc hmm viterbi: {}".format(acc_viterbi)
 
 if __name__ == '__main__':

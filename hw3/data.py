@@ -4,12 +4,12 @@ import re
 MIN_FREQ = 2
 
 
-
 def invert_dict(d):
     res = {}
     for k, v in d.iteritems():
         res[v] = k
     return res
+
 
 def read_conll_pos_file(path):
     """
@@ -25,8 +25,9 @@ def read_conll_pos_file(path):
                 curr = []
             else:
                 tokens = line.strip().split("\t")
-                curr.append((tokens[1],tokens[3]))
+                curr.append((tokens[1], tokens[3]))
     return sents
+
 
 def increment_count(count_dict, key):
     """
@@ -40,6 +41,7 @@ def increment_count(count_dict, key):
     else:
         count_dict[key] = 1
 
+
 def compute_vocab_count(sents):
     """
         Takes a corpus and computes all words and the number of times they appear
@@ -49,6 +51,7 @@ def compute_vocab_count(sents):
         for token in sent:
             increment_count(vocab, token[0])
     return vocab
+
 
 # Word categories for named-entity recognition table, copied from Bikel et al. (1999)
 #   http://people.csail.mit.edu/mcollins/6864/slides/bikel.pdf
@@ -70,13 +73,17 @@ def compute_vocab_count(sents):
 # initCap Sally Capitalized word
 # lowercase can Uncapitalized word
 # other , Punctuation marks, all other words
-SUFFIXES = ('ed', 'es', 'us', 's', 'able', 'ing', 'al', 'ic', 'ly')
-CRAFTED_CATEGORIES = [x + 'Word' for x in SUFFIXES] + ['withDash', 'beginReWord',
-    'twoDigitNum', 'fourDigitNum', 'othernum',
-                      'containsDigitAndAlpha', 'containsDigitAndDash',
-                      'containsDigitAndSlash', 'containsDigitAndPeriod',
-                      'allCaps', 'capPeriod', 'firstWord', 'initCap',
-                      'lowercase', 'UNK']
+SUFFIXES = ('ed', 'es', 'us', 's', 'able', 'ing', 'al', 'ic', 'ly', 'tion')
+PREFIXES = ('re', 'dis', 'un', 'de')
+
+CRAFTED_CATEGORIES = (['wordSuffix' + x for x in SUFFIXES]
+                      + [x + 'WordPrefix' for x in PREFIXES] +
+                      ['withDash',
+                       'twoDigitNum', 'fourDigitNum', 'othernum',
+                       'containsDigitAndAlpha', 'containsDigitAndDash',
+                       'containsDigitAndSlash', 'containsDigitAndPeriod',
+                       'allCaps', 'capPeriod', 'firstWord', 'initCap',
+                       'lowercase', 'UNK'])
 
 
 def replace_word(word, is_first, vocab):
@@ -104,19 +111,19 @@ def replace_word(word, is_first, vocab):
         return 'allCaps'
     elif CAP_PERIOD_PATTERN.match(word):
         return 'capPeriod'
+    if is_first and vocab.get(word.lower(), 0) >= MIN_FREQ:
+        return word.lower()
+
     if word.isalpha():
         for suffix in SUFFIXES:
             if word.endswith(suffix):
-                return suffix + 'Word'
-    if word.isalpha() and word.startswith('re'):
-        return 'beginReWord'
+                return 'wordSuffix' + suffix
+    if word.isalpha():
+        for prefix in PREFIXES:
+            if word.startswith(prefix):
+                return prefix + 'WordPrefix'
     if '-' in word:
         return 'withDash'
-    elif word[0].isupper() and is_first:
-        if vocab.get(word.lower(), 0) >= MIN_FREQ:
-            return word.lower()
-        else:
-            return 'firstWord'
     elif word.isalpha() and word.lower() == word:
         return 'lowercase'
     ### END YOUR CODE
@@ -156,12 +163,5 @@ def preprocess_sent(vocab, sents):
             total += 1
             is_first = False
         res.append(new_sent)
-    print "replaced: " + str(float(replaced)/total)
+    print "replaced: " + str(float(replaced) / total)
     return res
-
-
-
-
-
-
-

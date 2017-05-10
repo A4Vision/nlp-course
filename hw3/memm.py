@@ -13,9 +13,6 @@ from data import *
 BEGIN_TAG = '*'
 END_TAG = 'STOP'
 
-SUFFIXES = ('ed', 'es', 'us', 's', 'able', 'ing', 'al', 'ic', 'ly', 'tion')
-PREFIXES = ('re', 'dis', 'un')
-
 
 def extract_features_base(curr_word, next_word, prev_word, prevprev_word, prev_tag, prevprev_tag):
     """
@@ -78,7 +75,6 @@ def create_examples(sents):
             examples.append(features)
             labels.append(tagset[sent[i][1]])
     return examples, labels
-    print "done"
 
 
 def memm_greeedy(sent, logreg, vec):
@@ -183,7 +179,7 @@ def memm_eval(test_data, logreg, vec):
     count_total = 0
     count_good_viterbi = 0
     start_time = time.time()
-    N = 5
+    N = 500
     for i_loop, sentence in enumerate(test_data):
         if i_loop % N == 1:
             elapsed = time.time() - start_time
@@ -214,7 +210,6 @@ if __name__ == "__main__":
     FNAME = sys.argv[2]
     train_sents = read_conll_pos_file("Penn_Treebank/train.gold.conll")[:num_samples]
     dev_sents = read_conll_pos_file("Penn_Treebank/dev.gold.conll")
-
 
     vocab = compute_vocab_count(train_sents)
     train_sents = preprocess_sent(vocab, train_sents)
