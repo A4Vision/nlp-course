@@ -4,8 +4,8 @@ import sys
 import time
 import cPickle
 import collections
+import random
 import numpy as np
-import math
 from sklearn.feature_extraction import DictVectorizer
 from sklearn import linear_model
 from data import *
@@ -32,13 +32,22 @@ def extract_features_base(curr_word, next_word, prev_word, prevprev_word, prev_t
     features['prevprev_tag'] = prevprev_tag
     features['tag_bigram'] = prev_tag + ' ' + prevprev_tag
 
-    features['prev_word_tag'] = prev_word + ' ' + prev_tag
-    features['prevprev_word_tag'] = prevprev_word + ' ' + prevprev_tag
+    # Capitalized
+    features['is_cap'] = curr_word[0].isupper() and prev_tag != BEGIN_TAG
+    features['prev_is_cap'] = prev_word[0].isupper() and prevprev_tag != BEGIN_TAG
+    features['next_is_cap'] = next_word[0].isupper()
 
-    for suffix in SUFFIXES:
-        features['suffix_{}'.format(suffix)] = int(curr_word.endswith(suffix))
-    for prefix in PREFIXES:
-        features['prefix_{}'.format(prefix)] = int(curr_word.startswith(prefix))
+
+    # To reduce features amount, we did not use the folowing features:
+    # features['prev_word_tag'] = prev_word + ' ' + prev_tag
+    # features['prevprev_word_tag'] = prevprev_word + ' ' + prevprev_tag
+    if not features['is_cap']:
+        curr_word = curr_word.lower()
+        for suffix in SUFFIXES:
+            features['suffix_{}'.format(suffix)] = int(curr_word.endswith(suffix))
+
+        for prefix in PREFIXES:
+            features['prefix_{}'.format(prefix)] = int(curr_word.startswith(prefix))
 
     ### END YOUR CODE
     return features
@@ -49,6 +58,7 @@ def extract_features(sentence, i):
     prevprev_token = sentence[i - 2] if i > 1 else ('<s>', BEGIN_TAG)
     next_token = sentence[i + 1] if i < (len(sentence) - 1) else ('</s>', END_TAG)
     return extract_features_base(curr_word, next_token[0], prev_token[0], prevprev_token[0], prev_token[1], prevprev_token[1])
+
 
 def vectorize_features(vec, features):
     """
@@ -96,6 +106,14 @@ def memm_greeedy(sent, logreg, vec):
 
 
 t1_timer = t = utils.Timer("None")
+PRUNE_THRESHOLD = 30
+
+
+def prune_layer(key2value):
+    if len(key2value) <= PRUNE_THRESHOLD:
+        return key2value
+    threshold = sorted(key2value.values())[-PRUNE_THRESHOLD]
+    return {k: v for k, v in key2value.iteritems() if v >= threshold}
 
 
 def memm_viterbi(sent, logreg, vec):
@@ -108,7 +126,7 @@ def memm_viterbi(sent, logreg, vec):
     layer = {(BEGIN_TAG, BEGIN_TAG): 0}
     back_pointers = []
     SMALL = -99999.
-    sizes = []
+    # sizes = []
 
     for i, word in enumerate(sent):
         new_layer = collections.defaultdict(lambda: SMALL)
@@ -129,8 +147,8 @@ def memm_viterbi(sent, logreg, vec):
         t1_timer.start_part("None")
         back_pointers.append(current_back_pointers)
         layer = {key: value for key, value in new_layer.iteritems() if value > SMALL}
-        sizes.append(len(layer))
-    print sizes
+        layer = prune_layer(layer)
+        # sizes.append(len(layer))
     two_final_tags = max(layer.items(), key=lambda ((u, v), log_prob): log_prob)[0]
     predicted_tags = list(two_final_tags)
     for current_back_pointers in back_pointers[::-1][:-2]:
@@ -140,19 +158,9 @@ def memm_viterbi(sent, logreg, vec):
     return predicted_tags
 
 
-def calculate_tagging_probs(sent, i, w, u, logreg, vec):
-    sent_with_tags = map(list, zip(sent, [None] * len(sent)))
-    if i > 1:
-        sent_with_tags[i - 2][1] = w
-    if i > 0:
-        sent_with_tags[i - 1][1] = u
-    features = extract_features(sent_with_tags, i)
-    vec_features = vectorize_features(vec, features)
-    return logreg.predict_proba(vec_features)[0]
-
-
 def array_calculate_tagging_probs(sent, i, w_u_list, logreg, vec):
     # w_u_list is list of (w, u)
+    t1_timer.start_part("preprocess_prediction")
     all_features_vecs = []
     for w, u in w_u_list:
         sent_with_tags = map(list, zip(sent, [None] * len(sent)))
@@ -163,8 +171,28 @@ def array_calculate_tagging_probs(sent, i, w_u_list, logreg, vec):
         features = extract_features(sent_with_tags, i)
         all_features_vecs.append(features)
     sparse_features = vec.transform(all_features_vecs)
+    t1_timer.start_part("prediction")
     probs_vecs = np.log(logreg.predict_proba(sparse_features))
     return {(w, u): probs_vecs[j] for j, (w, u) in enumerate(w_u_list)}
+
+
+def sample_bad_classifications_viterbi(original_test_data, test_data, logreg, vec):
+    for i in random.sample(range(len(test_data)), 1000):
+        original_sentence, sentence = original_test_data[i], test_data[i]
+        words = [word for word, tag in sentence]
+        original_words = [word for word, tag in original_sentence]
+        viterbi_tags = memm_viterbi(words, logreg, vec)
+        real_tags = [tag for (word, tag) in sentence]
+        if equal_amount(real_tags, viterbi_tags) != len(real_tags):
+            s = ''
+            for original_word, word, tag, real_tag in zip(original_words, words, viterbi_tags, real_tags):
+                if word != original_word:
+                    s += '{} [replace={}] '.format(original_word, word)
+                else:
+                    s += word + ' '
+                if real_tag != tag:
+                    s += '(real={}, memm={}) '.format(real_tag, tag)
+            print s
 
 
 def memm_eval(test_data, logreg, vec):
@@ -173,13 +201,12 @@ def memm_eval(test_data, logreg, vec):
     Returns an evaluation of the accuracy of hmm & greedy hmm
     """
     global t1_timer
-    acc_viterbi, acc_greedy = 0.0, 0.0
     ### YOUR CODE HERE
     count_good_greedy = 0
-    count_total = 0
     count_good_viterbi = 0
+    count_total = 0
     start_time = time.time()
-    N = 500
+    N = 100
     for i_loop, sentence in enumerate(test_data):
         if i_loop % N == 1:
             elapsed = time.time() - start_time
@@ -205,15 +232,16 @@ def equal_amount(l1, l2):
     return sum([1 for x, y in zip(l1, l2) if x == y])
 
 
-if __name__ == "__main__":
+def main():
+    global index_to_tag_dict, tagset
     num_samples = int(sys.argv[1])
     FNAME = sys.argv[2]
     train_sents = read_conll_pos_file("Penn_Treebank/train.gold.conll")[:num_samples]
-    dev_sents = read_conll_pos_file("Penn_Treebank/dev.gold.conll")
-
+    original_dev_sents = read_conll_pos_file("Penn_Treebank/dev.gold.conll")
+    random.shuffle(original_dev_sents)
     vocab = compute_vocab_count(train_sents)
     train_sents = preprocess_sent(vocab, train_sents)
-    dev_sents = preprocess_sent(vocab, dev_sents)
+    dev_sents = preprocess_sent(vocab, original_dev_sents)
 
     #The log-linear model training.
     #NOTE: this part of the code is just a suggestion! You can change it as you wish!
@@ -262,6 +290,7 @@ if __name__ == "__main__":
         end = time.time()
         print "done, " + str(end - start) + " sec"
     #End of log linear model training
+    sample_bad_classifications_viterbi(original_dev_sents, dev_sents, logreg, vec)
 
     acc_viterbi, acc_greedy = memm_eval(dev_sents, logreg, vec)
     print "dev: acc memm greedy: " + acc_greedy
@@ -272,3 +301,7 @@ if __name__ == "__main__":
         acc_viterbi, acc_greedy = memm_eval(test_sents, logreg, vec)
         print "test: acc memmm greedy: " + acc_greedy
         print "test: acc memmm viterbi: " + acc_viterbi
+
+
+if __name__ == "__main__":
+    main()

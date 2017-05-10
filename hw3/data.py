@@ -113,7 +113,8 @@ def replace_word(word, is_first, vocab):
         return 'capPeriod'
     if is_first and vocab.get(word.lower(), 0) >= MIN_FREQ:
         return word.lower()
-
+    if not is_first and word[0].isupper():
+        return 'initCap'
     if word.isalpha():
         for suffix in SUFFIXES:
             if word.endswith(suffix):
@@ -131,7 +132,7 @@ def replace_word(word, is_first, vocab):
 
 
 CAP_PERIOD_PATTERN = re.compile("^[A-Z]\\.$")
-ALPHA_PATTERN = re.compile("\\w")
+ALPHA_PATTERN = re.compile("[a-zA-Z]")
 DIGIT_PATTERN = re.compile("\\d")
 
 

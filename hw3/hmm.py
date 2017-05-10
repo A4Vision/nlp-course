@@ -181,7 +181,7 @@ def main():
 
     best_lambdas = 0, 0
     best_accuracy = 0
-    for l1, l2 in itertools.product([0.98, 0.99], [0.001, 0.005, 0.01, 0.015]):
+    for l1, l2 in itertools.product([0.97, 0.98, 0.99], [0.005, 0.01, 0.015]):
         if l1 + l2 >= 1:
             continue
         acc_viterbi = hmm_eval(dev_sents, total_tokens, q_tri_counts, q_bi_counts, q_uni_counts, e_word_tag_counts,
