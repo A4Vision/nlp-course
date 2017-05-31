@@ -1,8 +1,7 @@
 import os
 import re
 
-MIN_FREQ = 3
-
+MIN_FREQ = 2
 
 
 def invert_dict(d):
@@ -10,6 +9,7 @@ def invert_dict(d):
     for k, v in d.iteritems():
         res[v] = k
     return res
+
 
 def read_conll_pos_file(path):
     """
@@ -25,8 +25,9 @@ def read_conll_pos_file(path):
                 curr = []
             else:
                 tokens = line.strip().split("\t")
-                curr.append((tokens[1],tokens[3]))
+                curr.append((tokens[1], tokens[3]))
     return sents
+
 
 def increment_count(count_dict, key):
     """
@@ -40,6 +41,7 @@ def increment_count(count_dict, key):
     else:
         count_dict[key] = 1
 
+
 def compute_vocab_count(sents):
     """
         Takes a corpus and computes all words and the number of times they appear
@@ -49,6 +51,7 @@ def compute_vocab_count(sents):
         for token in sent:
             increment_count(vocab, token[0])
     return vocab
+
 
 # Word categories for named-entity recognition table, copied from Bikel et al. (1999)
 #   http://people.csail.mit.edu/mcollins/6864/slides/bikel.pdf
@@ -70,14 +73,20 @@ def compute_vocab_count(sents):
 # initCap Sally Capitalized word
 # lowercase can Uncapitalized word
 # other , Punctuation marks, all other words
-CRAFTED_CATEGORIES = ['twoDigitNum', 'fourDigitNum', 'othernum',
-                      'containsDigitAndAlpha', 'containsDigitAndDash',
-                      'containsDigitAndSlash', 'containsDigitAndPeriod',
-                      'allCaps', 'capPeriod', 'firstWord', 'initCap',
-                      'lowercase', 'UNK']
+SUFFIXES = ('ed', 'es', 'us', 's', 'able', 'ing', 'al', 'ic', 'ly', 'tion')
+PREFIXES = ('re', 'dis', 'un', 'de')
+
+CRAFTED_CATEGORIES = (['wordSuffix' + x for x in SUFFIXES]
+                      + [x + 'WordPrefix' for x in PREFIXES] +
+                      ['withDash',
+                       'twoDigitNum', 'fourDigitNum', 'othernum',
+                       'containsDigitAndAlpha', 'containsDigitAndDash',
+                       'containsDigitAndSlash', 'containsDigitAndPeriod',
+                       'allCaps', 'capPeriod', 'firstWord', 'initCap',
+                       'lowercase', 'UNK'])
 
 
-def replace_word(word, is_first):
+def replace_word(word, is_first, vocab):
     """
         Replaces rare words with categories (numbers, dates, etc...)
     """
@@ -102,10 +111,20 @@ def replace_word(word, is_first):
         return 'allCaps'
     elif CAP_PERIOD_PATTERN.match(word):
         return 'capPeriod'
-    elif is_first:
-        return 'firstWord'
-    elif word[0].isupper():
+    if is_first and vocab.get(word.lower(), 0) >= MIN_FREQ:
+        return word.lower()
+    if not is_first and word[0].isupper():
         return 'initCap'
+    if word.isalpha():
+        for suffix in SUFFIXES:
+            if word.endswith(suffix):
+                return 'wordSuffix' + suffix
+    if word.isalpha():
+        for prefix in PREFIXES:
+            if word.startswith(prefix):
+                return prefix + 'WordPrefix'
+    if '-' in word:
+        return 'withDash'
     elif word.isalpha() and word.lower() == word:
         return 'lowercase'
     ### END YOUR CODE
@@ -113,7 +132,7 @@ def replace_word(word, is_first):
 
 
 CAP_PERIOD_PATTERN = re.compile("^[A-Z]\\.$")
-ALPHA_PATTERN = re.compile("\\w")
+ALPHA_PATTERN = re.compile("[a-zA-Z]")
 DIGIT_PATTERN = re.compile("\\d")
 
 
@@ -138,19 +157,12 @@ def preprocess_sent(vocab, sents):
             if token[0] in vocab and vocab[token[0]] >= MIN_FREQ:
                 new_sent.append(token)
             else:
-                r = replace_word(token[0], is_first)
-                assert r in CRAFTED_CATEGORIES
+                r = replace_word(token[0], is_first, vocab)
+                assert r in CRAFTED_CATEGORIES or vocab
                 new_sent.append((r, token[1]))
                 replaced += 1
             total += 1
             is_first = False
         res.append(new_sent)
-    print "replaced: " + str(float(replaced)/total)
+    print "replaced: " + str(float(replaced) / total)
     return res
-
-
-
-
-
-
-
