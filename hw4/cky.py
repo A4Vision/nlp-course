@@ -32,7 +32,7 @@ def cky(pcfg, sent):
                     bp[(i, i, X)] = Node(X, None, None, curr_word)
                     set_flag = True
         if not set_flag:
-            pi[(i, i, curr_word)] = 1
+            pi[(i, i, curr_word)] = 0.0000000001
             bp[(i, i, curr_word)] = Node(None, None, None, curr_word)
     for i in reversed(range(1, n + 1)):
         for l in range(1, n - i + 1):
