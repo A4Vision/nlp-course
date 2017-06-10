@@ -4,6 +4,7 @@ from itertools import chain
 from PCFG import PCFG
 import math
 
+
 def load_sents_to_parse(filename):
     sents = []
     with open(filename) as f:
@@ -13,49 +14,52 @@ def load_sents_to_parse(filename):
                 sents.append(line)
     return sents
 
+
 def cky(pcfg, sent):
+    """
+    Calculates the most likely derivation.
+
+    :param pcfg: a CNF PCFG.
+    :param sent:
+    :return: derivation tree.
+    """
     ### YOUR CODE HERE
     split_sent = sent.split()
     n = len(split_sent)
     pi = defaultdict(float)
     bp = {}
     rules = pcfg._rules
-    N = set(rules.keys() + list(chain.from_iterable(map(lambda x: x[0][0] if len(x) > 0 else [], rules.values()))))
     for i in range(1, n + 1):
         set_flag = False
         curr_word = split_sent[i - 1]
-        for X in N:
-            derivations = rules[X]
+        for X, derivations in rules.iteritems():
             for derivation in derivations:
                 if [curr_word] == derivation[0]:
                     pi[(i, i, X)] = derivation[1]
                     bp[(i, i, X)] = Node(X, None, None, curr_word)
                     set_flag = True
         if not set_flag:
-            pi[(i, i, curr_word)] = 0.0000000001
-            bp[(i, i, curr_word)] = Node(None, None, None, curr_word)
-    for i in reversed(range(1, n + 1)):
-        for l in range(1, n - i + 1):
+            return "FAILED TO PARSE!"
+    for i in reversed(range(1, n)):
+        for l in xrange(1, n - i + 1):
             j = i + l
-            for X in N:
-                derivations = rules[X]
+            for X, derivations in rules.iteritems():
                 max_value = 0
-                max_input = None
                 for derivation in derivations:
-                    for s in range(i, j):
-                        if len(derivation[0]) == 2:
-                            value = derivation[1] * pi[(i, s, derivation[0][0])] * pi[(s + 1, j, derivation[0][1])]
+                    if len(derivation[0]) == 2:
+                        for s in xrange(i, j):
+                            key_left = (i, s, derivation[0][0])
+                            key_right = (s + 1, j, derivation[0][1])
+                            value = derivation[1] * pi[key_left] * pi[key_right]
                             max_value = max(value, max_value)
                             if value == max_value and value > 0:
-                                max_input = Node(X, bp[(i, s, derivation[0][0])],
-                                                 bp[(s + 1, j, derivation[0][1])], None)
-                pi[(i, j, X)] = max_value
-                if max_input:
-                    bp[(i, j, X)] = max_input
-    for key in bp:
-        node = bp[key]
-        if node.root == 'ROOT' and key[1] - key[0] == len(split_sent) - 1:
-            return get_tree(node)
+                                bp[(i, j, X)] = Node(X, bp[key_left], bp[key_right], None)
+                                pi[(i, j, X)] = max_value
+
+    whole_key = (1, n, 'ROOT')
+    if whole_key in bp:
+        node = bp[whole_key]
+        return get_tree(node)
     ### END YOUR CODE
     return "FAILED TO PARSE!"
 
@@ -79,7 +83,7 @@ def get_tree(root):
     return '(' + root.root + ' ' + left + ' ' + right + ')'
 
 
-class Node:
+class Node(object):
     def __init__(self, root, left, right, terminal):
         self.root = root
         self.left = left

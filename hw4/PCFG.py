@@ -40,10 +40,12 @@ class PCFG(object):
                 if len(r) <= 0:
                     raise Exception("Grammar is not CNF, right-hand-side is empty: " + str(r))
                 grammar.add_rule(l,r,w)
-        for lhs, rhs_and_weight in grammar._rules.iteritems():
-            rhs = rhs_and_weight[0]
-            if len(rhs) == 1 and not grammar.is_terminal(rhs[0]):
-                raise Exception("Grammar has unary rule: " + str(rhs))
+        for lhs, rhs_and_weights in grammar._rules.iteritems():
+            for rhs, weight in rhs_and_weights:
+                if len(rhs) == 1 and not grammar.is_terminal(rhs[0]):
+                    raise Exception("Grammar has unary rule: " + str(rhs))
+                elif len(rhs) == 2 and (grammar.is_terminal(rhs[0]) or grammar.is_terminal(rhs[1])):
+                    raise Exception("Grammar has binary rule with terminals: " + str(rhs))
         return grammar
 
     def is_terminal(self, symbol): return symbol not in self._rules

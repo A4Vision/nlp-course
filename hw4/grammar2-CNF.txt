@@ -19,8 +19,11 @@
 
 # Rules for creating full sentences.
 
-0.1	ROOT	S .
-0.1	ROOT	S !
+1	ROOT	S Period
+1	ROOT	S Mark
+
+1   Period  .
+1   Mark    1
 
 # The basic grammar rules.  Here's what the abbreviations stand for:
 #    S  = sentence
