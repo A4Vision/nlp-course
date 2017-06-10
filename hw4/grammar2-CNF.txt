@@ -55,7 +55,6 @@
 1	NP	Det Noun
 1	NP	Det NP
 1	NP	NP PP
-1	NP	Name PP
 1	NP	AP NP
 1	NP	AP Noun
 1   PP  Prep VP
