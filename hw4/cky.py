@@ -96,4 +96,14 @@ if __name__ == '__main__':
     pcfg = PCFG.from_file_assert_cnf(sys.argv[1])
     sents_to_parse = load_sents_to_parse(sys.argv[2])
     for sent in sents_to_parse:
+        print sent
         print cky(pcfg, sent)
+
+    if len(sys.argv) > 3:
+        print "================"
+        print "\tBAD"
+        print "================"
+        sents_bad = load_sents_to_parse(sys.argv[3])
+        for sent in sents_bad:
+            print sent
+            print cky(pcfg, sent)

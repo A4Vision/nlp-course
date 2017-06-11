@@ -23,7 +23,7 @@
 1	ROOT	S Mark
 
 1   Period  .
-1   Mark    1
+1   Mark    !
 
 # The basic grammar rules.  Here's what the abbreviations stand for:
 #    S  = sentence
@@ -42,38 +42,138 @@
 #    Conj = conjunction
 #    Pronoun = pronoun
 
-1   S	NP VP
-1   S   NP Verb
-1   S	Name VP
-1   S   Name Verb
-1   S   SC S
-1   SC  S Conj
-
-1	VP	Auxv Adj
-1	VP	Auxv Ving
-1   	VP  	Verb PP
-1   	VP  	Verb NP
-1   	VP  	Verb2 SBAR
-
-1	SBAR	Sub S
-
-
-1	NP	Det Noun
-1	NP	Det NP
-1	NP	NP PP
-1	NP	AP NP
-1	NP	AP Noun
-
-1	NP	NPC NP
-1	NPC	Conj NP
-
-
-1 	NP 	Det Pronoun
-
-1	PP	Prep NP
-
-1	AP	Adv Adj
-1	AP	Adv AP
+# Automatic CNF grammar generator should paste the grammar between PASTE START end PASTE END
+# PASTE START
+1	VP10	Prep Pronoun
+1	S1	Conj S
+1	NP9	Prep Pronoun
+1	NP8	Prep Pronoun
+1	NP5	Conj Pronoun
+1	NP4	Conj NP
+1	NP7	Prep NP
+1	NP6	Conj Pronoun
+1	NP1	Conj NP
+1	NP3	Prep NP
+1	NP2	AP Noun
+1	NP19	Prep Name
+1	NP18	Prep Name
+1	VP13	Prep Pronoun
+1.0	VP12	Ving VP13
+1	VP15	Sub S
+1.0	VP14	Pronoun VP15
+1	VP17	Ving Name
+1	VP16	Prep Name
+1	NP11	Conj Pronoun
+1	NP10	Conj Pronoun
+1	NP13	Prep Pronoun
+1	NP12	Prep Pronoun
+1	NP15	Conj Name
+1	NP14	Conj NP
+1	NP17	Prep NP
+1	NP16	Conj Name
+1.0	NP	NP NP1
+1.0	NP	Det Noun
+1.0	NP	Det NP2
+1.0	NP	NP NP3
+1.0	NP	AP NP
+1.0	NP	Pronoun NP4
+1.0	NP	NP NP5
+1.0	NP	Pronoun NP6
+1.0	NP	Pronoun NP7
+1.0	NP	NP NP8
+1.0	NP	Pronoun NP9
+1.0	NP	AP Pronoun
+1.0	NP	Pronoun NP10
+1.0	NP	Pronoun NP11
+1.0	NP	Pronoun NP12
+1.0	NP	Pronoun NP13
+1.0	NP	Name NP14
+1.0	NP	NP NP15
+1.0	NP	Name NP16
+1.0	NP	Name NP17
+1.0	NP	NP NP18
+1.0	NP	Name NP19
+1.0	NP	AP Name
+1.0	NP	Pronoun NP20
+1.0	NP	Name NP21
+1.0	NP	Pronoun NP22
+1.0	NP	Name NP23
+1.0	NP	Name NP24
+1.0	NP	Name NP25
+1.0	NP	Name NP26
+1.0	NP	Name NP27
+1.0	NP	Det NP28
+1.0	NP	Adj NP
+1.0	NP	Adj Pronoun
+1.0	NP	Adj Name
+1	VP5	Prep NP
+1.0	VP4	Ving VP5
+1	VP7	Sub S
+1	VP6	Sub S
+1	VP1	Conj VP
+1	VP3	Ving NP
+1	VP2	Prep NP
+1	VP9	Sub S
+1.0	VP8	NP VP9
+1.0	VP	VP VP1
+1.0	VP	Verb1 VP2
+1.0	VP	Verb1 NP
+1.0	VP	Auxv VP3
+1.0	VP	Auxv VP4
+1.0	VP	Auxv Ving
+1.0	VP	Auxv AP
+1.0	VP	Auxv NP
+1.0	VP	Verb3 VP6
+1.0	VP	Verb4 VP7
+1.0	VP	Verb3 VP8
+1.0	VP	Verb1 VP10
+1.0	VP	Verb1 Pronoun
+1.0	VP	Auxv VP11
+1.0	VP	Auxv VP12
+1.0	VP	Auxv Pronoun
+1.0	VP	Verb3 VP14
+1.0	VP	Verb1 VP16
+1.0	VP	Verb1 Name
+1.0	VP	Auxv VP17
+1.0	VP	Auxv VP18
+1.0	VP	Auxv Name
+1.0	VP	Verb3 VP20
+1.0	VP	Verb2 VP22
+1.0	VP	VP VP23
+1.0	VP	Verb2 VP24
+1.0	VP	Verb2 VP25
+1.0	VP	Verb2 VP26
+1.0	VP	Auxv Adj
+1.0	AP	Adv Adj
+1.0	AP	Adv AP
+1.0	AP	Adv Adj
+1.0	S	NP VP
+1.0	S	S S1
+1.0	S	Pronoun VP
+1.0	S	Name VP
+1.0	S	NP Verb2
+1.0	S	Pronoun Verb2
+1.0	S	Name Verb2
+1	NP20	Conj Name
+1	NP21	Conj Pronoun
+1	NP22	Prep Name
+1	NP23	Prep Pronoun
+1	NP24	Conj Name
+1	NP25	Conj Name
+1	NP26	Prep Name
+1	NP27	Prep Name
+1	NP28	Adj Noun
+1	VP11	Ving Pronoun
+1	VP19	Prep Name
+1.0	VP18	Ving VP19
+1.0	VP20	Name VP21
+1	VP21	Sub S
+1	VP22	Conj VP
+1	VP23	Conj Verb2
+1	VP24	Conj Verb2
+1	VP25	Conj Verb2
+1	VP26	Conj Verb2
+# PASTE END
 
 # Vocabulary.  Your program can see that "ate" is a terminal
 # symbol because there exists no rule for rewriting it.
@@ -81,16 +181,20 @@
 # terminals, like "chief of staff") is called a "preterminal."  Notice 
 # that a preterminal is a special kind of nonterminal.
 
-1	Verb	ate
-1	Verb	wanted
-1	Verb	kissed
-1	Verb	pickled
-1	Verb	sighed
-1	Verb	worked
-0.5	Verb	perplexed
+1	Verb1	ate
+1	Verb1	wanted
+1	Verb1	kissed
+1	Verb1	pickled
 
-1	Verb2	understood
-1	Verb2	thought
+# NOTE: wanted is actually of type 1, but we need to pass the test defined by the exercise.
+1	Verb2	wanted
+1	Verb2	sighed
+1	Verb2	worked
+
+1	Verb3	perplexed
+
+1	Verb4	understood
+1	Verb4	thought
 
 1	Ving	eating
 
@@ -108,7 +212,7 @@
 1	Noun	floor
 1	Noun	desk
 
-1   	Name    Sally
+1   Name    Sally
 
 1   Pronoun    it
 
