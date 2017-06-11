@@ -13,3 +13,5 @@ Sally is eating a sandwich .
 Sally is lazy .
 
 the president thought that a sandwich sighed a pickle .
+
+Sally ate with the sandwich .
