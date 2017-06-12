@@ -53,24 +53,37 @@ def add_unary_rule(pcfg, src, dst):
     return pcfg
 
 
-def remove_unary_rules(pcfg_src):
+def remove_unary_rules(pcfg):
     res = PCFG.PCFG()
-    rules = pcfg_src._rules
-    to_replace = None
+    rules = pcfg._rules
+    src = None
+    dsts = []
     for symbol, weighted_derivations in rules.iteritems():
         for symbols_list, weight in weighted_derivations:
-            if to_replace is None and len(symbols_list) == 1 and not symbols_list[0].islower():
-                to_replace = (symbol, symbols_list[0])
+            if src in (None, symbol) and len(symbols_list) == 1 and not symbols_list[0].islower():
+                src = symbol
+                dsts.append(symbols_list[0])
             else:
                 res.add_rule(symbol, symbols_list, weight)
-    if to_replace is not None:
-        src, dst = to_replace
-        add_unary_rule(res, src, dst)
-    return res, to_replace is not None
+    if src is not None:
+        for dst in dsts:
+            add_unary_rule(res, src, dst)
+    if res.is_terminal(src):
+        res = remove_rules_with_symbol(res, src)
+    return res, src is not None
+
+
+def remove_rules_with_symbol(pcfg, symbol_to_ignore):
+    res = PCFG.PCFG()
+    for symbol, weighted_derivations in pcfg._rules.iteritems():
+        for symbols_list, weight in weighted_derivations:
+            if symbol_to_ignore not in symbols_list:
+                res.add_rule(symbol, symbols_list, weight)
+    return res
 
 
 def add_symbol(symbol, list_symbols):
-    for i in xrange(1, 150):
+    for i in xrange(1, 500):
         suggestion = "{}_{}".format(symbol, i)
         if suggestion not in list_symbols:
             list_symbols.append(suggestion)
