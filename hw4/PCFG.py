@@ -43,8 +43,10 @@ class PCFG(object):
         for lhs, rhs_and_weights in grammar._rules.iteritems():
             for rhs, weight in rhs_and_weights:
                 if len(rhs) == 1 and not grammar.is_terminal(rhs[0]):
+                    print lhs, rhs
                     raise Exception("Grammar has unary rule: " + str(rhs))
                 elif len(rhs) == 2 and (grammar.is_terminal(rhs[0]) or grammar.is_terminal(rhs[1])):
+                    print grammar.is_terminal(rhs[0]), grammar.is_terminal(rhs[1])
                     raise Exception("Grammar has binary rule with terminals: " + str(rhs))
         return grammar
 

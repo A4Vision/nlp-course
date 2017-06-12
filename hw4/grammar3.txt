@@ -57,3 +57,17 @@
 1   Chief chief
 1   Of  of
 1   Staff   staff
+
+1   NP  NP That VP1
+
+1   RELCLAUSE  NP Verb1
+1   RELCLAUSE  NP Verb1 Prep NP
+1   RELCLAUSE  NP Verb2
+1   RELCLAUSE  NP Verb2 Prep NP
+1   RELCLAUSE  NP Verb4
+1   RELCLAUSE  NP Verb5 That RELCLAUSE
+1   RELCLAUSE  NP Verb5 Of
+
+1   NP  NP That RELCLAUSE
+
+

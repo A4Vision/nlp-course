@@ -93,11 +93,14 @@ class Node(object):
 
 if __name__ == '__main__':
     import sys
+    import os
+    os.system("python convert_to_cnf.py grammar2.txt grammar2-CNF.txt")
+    os.system("python convert_to_cnf.py grammar3.txt grammar3-CNF.txt")
     pcfg = PCFG.from_file_assert_cnf(sys.argv[1])
     sents_to_parse = load_sents_to_parse(sys.argv[2])
     for sent in sents_to_parse:
-        print sent
-        print cky(pcfg, sent)
+        if "FAILED" in cky(pcfg, sent):
+            print sent
 
     if len(sys.argv) > 3:
         print "================"
@@ -105,5 +108,6 @@ if __name__ == '__main__':
         print "================"
         sents_bad = load_sents_to_parse(sys.argv[3])
         for sent in sents_bad:
-            print sent
-            print cky(pcfg, sent)
+            if "FAILED" not in cky(pcfg, sent):
+                print sent
+                print cky(pcfg, sent)

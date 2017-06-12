@@ -44,6 +44,7 @@ def list_replace_options(l, src, dst):
 
 
 def add_unary_rule(pcfg, src, dst):
+    print "replacing ", src, dst
     for symbol, weighted_derivations in pcfg._rules.items():
         for symbols_list, weight in weighted_derivations:
             if src in symbols_list:
@@ -55,24 +56,26 @@ def add_unary_rule(pcfg, src, dst):
 def remove_unary_rules(pcfg_src):
     res = PCFG.PCFG()
     rules = pcfg_src._rules
-    to_replace = set()
+    to_replace = None
     for symbol, weighted_derivations in rules.iteritems():
         for symbols_list, weight in weighted_derivations:
-            if len(symbols_list) == 1:
-                to_replace.add((symbol, symbols_list[0]))
+            if to_replace is None and len(symbols_list) == 1 and not symbols_list[0].islower():
+                to_replace = (symbol, symbols_list[0])
             else:
                 res.add_rule(symbol, symbols_list, weight)
-    for src, dst in to_replace:
+    if to_replace is not None:
+        src, dst = to_replace
         add_unary_rule(res, src, dst)
-    return res
+    return res, to_replace is not None
 
 
 def add_symbol(symbol, list_symbols):
-    for i in xrange(1, 30):
-        suggestion = "{}{}".format(symbol, i)
+    for i in xrange(1, 150):
+        suggestion = "{}_{}".format(symbol, i)
         if suggestion not in list_symbols:
             list_symbols.append(suggestion)
             return suggestion
+    print symbol
     assert False
 
 
@@ -94,8 +97,11 @@ def reduce_to_binary_rules(pcfg):
 
 
 def create_cnf_rules(pcfg):
-    pcfg1 = remove_unary_rules(pcfg)
-    return reduce_to_binary_rules(pcfg1)
+    for i in xrange(30):
+        pcfg, changed = remove_unary_rules(pcfg)
+        if not changed:
+            break
+    return reduce_to_binary_rules(pcfg)
 
 
 def to_strings(pcfg):

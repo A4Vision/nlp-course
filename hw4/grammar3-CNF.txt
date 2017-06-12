@@ -1,31 +1,29 @@
 # Symbols in the grammar are case-sensitive.
-# 
+#
 # This grammar uses a convention that
 #    - terminals are lowercase          (president)
 #    - preterminals are capitalized     (Noun)
 #    - other nonterminals are all-caps  (NP)
-# 
+#
 # This convention just makes grammars more readable to humans.  Thus:
 #
-#    - When *you* are writing grammars, you should 
-#      follow this convention unless you have a good reason not to.  
+#    - When *you* are writing grammars, you should
+#      follow this convention unless you have a good reason not to.
 #
 #    - But the  *program* should still work with grammars that don't
 #      follow this convention.  So how can the program reliably tell
 #      the difference between terminal and nonterminal symbols?  If
 #      there is at least one rule for rewriting a symbol, then that
-#      symbol is a nonterminal and should be rewritten.
+#      symbol is a nonterminalf should be rewritten.
 #######################
 
 # Rules for creating full sentences.
-
 
 1	ROOT	S Period
 1	ROOT	S Mark
 
 1   Period  .
-1   Mark    1
-
+1   Mark    !
 
 # The basic grammar rules.  Here's what the abbreviations stand for:
 #    S  = sentence
@@ -40,86 +38,562 @@
 #    Prep = preposition
 #    Adj = adjective
 #    Adv = adverb
-#    Auxv = auxiliary verb
+#    Auxv = auxiliary verb ("is")
 #    Conj = conjunction
+#    Pronoun = pronoun
 
-1   S	NP VP
-1   S   NP Verb
-1   S   SC S
-1   SC  S Conj
-1	VP	Verb NP
-1	VP	Auxv Adj
-1	VP	Auxv VP
-1	VP	Auxv NP
-1	VP	Auxv Pvoice
-1   	VP  Ving	NP
-1   	VP  Verb	PP
-1	NP	Det Noun
-1	NP	Det NP
-1	NP	NP PP
-1	NP	AP NP
-1	NP	AP Noun
-1   PP  Prep VP
-1	PP	Prep NP
-1	PP	Prep Noun
-1	AP	Adv Adj
-1	AP	Adv AP
-1	AP	Adv AP
+# Automatic CNF grammar generator should paste the grammar between PASTE START end PASTE END
+# PASTE START
+1	NP_15	That RELCLAUSE
+1	NP_14	That VP1
+1.0	APREC	Adj APREC
+1.0	APREC	Adj Adj
+1.0	NP_25	Noun NP_26
+1	VP1_26	That S
+1	NP_68	Prep Pronoun
+1.0	NP_69	Adj NP_70
+1	NP_17	That Verb3
+1	NP_42	That Verb3
+1	NP_63	That RELCLAUSE
+1.0	NP_60	Noun NP_61
+1	VP2_60	Prep Pronoun
+1.0	NP_66	Adj NP_67
+1.0	NP_19	Adj NP_20
+1	NP_64	That Verb1
+1	NP_65	That Verb3
+1	NP_18	Adj Noun
+1.0	RELCLAUSE_54	Verb1 RELCLAUSE_55
+1.0	NP_33	AP NP_34
+1	VP_8	Conj Verb3
+1.0	VP1_57	Name VP1_58
+1	VP1_56	Prep Name
+1.0	VP1_55	Pronoun VP1_56
+1	VP1_54	Prep Pronoun
+1.0	VP1_53	Name VP1_54
+1	VP1_52	Of Pronoun
+1	VP1_51	That S
+1.0	VP1_50	Pronoun VP1_51
+1.0	RELCLAUSE_23	Verb1 RELCLAUSE_24
+1	RELCLAUSE_22	Verb5 Of
+1	RELCLAUSE_21	That RELCLAUSE
+1.0	RELCLAUSE_20	Verb5 RELCLAUSE_21
+1.0	RELCLAUSE_27	Verb2 RELCLAUSE_28
+1	RELCLAUSE_26	Prep Name
+1.0	VP1_59	Pronoun VP1_60
+1	VP1_58	Prep Pronoun
+1	NP_13	APREC Noun
+1.0	NP_56	AP NP_57
+1	NP_55	Prep Pronoun
+1	RELCLAUSE_59	Prep Pronoun
+1	NP_53	Conj Pronoun
+1.0	VP2_34	Ving VP2_35
+1	NP_51	Conj NP
+1	NP_50	Conj Name
+1.0	Of	of
+1.0	NP_59	APREC NP_60
+1	VP_2	Conj VP1
+1	NP_28	Conj NP
+1	VP_1	Conj VP1
+1	NP_26	Prep NP
+1	VP1_9	That S
+1	VP1_8	That S
+1	VP2_18	Conj Adj
+1	VP2_19	Ving Name
+1	VP1_3	Prep NP
+1.0	VP1_2	NP VP1_3
+1	VP1_1	Prep NP
+1.0	VP2_15	Adj VP2_16
+1.0	VP1_7	NP VP1_8
+1	VP1_6	Prep NP
+1	VP1_5	Prep NP
+1.0	VP1_4	NP VP1_5
+1.0	RELCLAUSE_16	Verb2 RELCLAUSE_17
+1	VP1_23	Prep Name
+1.0	RELCLAUSE_14	Verb2 RELCLAUSE_15
+1	RELCLAUSE_15	Prep NP
+1.0	RELCLAUSE_12	Verb1 RELCLAUSE_13
+1	RELCLAUSE_13	Prep Name
+1.0	RELCLAUSE_10	Verb1 RELCLAUSE_11
+1	RELCLAUSE_11	Prep Name
+1	NP_22	Adj Noun
+1.0	VP1_28	Name VP1_29
+1	VP1_29	Prep Name
+1.0	NP_67	Noun NP_68
+1	VP2_14	Conj Adj
+1.0	RELCLAUSE_18	Verb2 RELCLAUSE_19
+1	RELCLAUSE_19	Prep Name
+1	NP_40	That RELCLAUSE
+1	NP_41	That Verb1
+1	VP_9	Conj Verb3
+1.0	NP_43	Adj NP_44
+1.0	NP_44	Noun NP_45
+1.0	NP_20	Noun NP_21
+1.0	NP_46	Adj NP_47
+1.0	NP_47	Noun NP_48
+1	NP_48	Prep Name
+1	VP2_12	Conj Adj
+1	NP_21	Prep NP
+1.0	VP2_13	Adj VP2_14
+1	NP_62	That VP1
+1	VP2_10	Conj AP
+1.0	NP_24	Adj NP_25
+1.0	NP_10	Noun NP_11
+1.0	VP2_11	AP VP2_12
+1.0	VP2_9	Adj VP2_10
+1.0	VP1_22	Name VP1_23
+1	NP_61	Prep Pronoun
+1	RELCLAUSE_17	Prep Name
+1.0	NP_57	Noun NP_58
+1	Noun_1	Of Staff
+1.0	VP1_20	NP VP1_21
+1.0	NP_54	Noun NP_55
+1	VP1_31	Prep Name
+1.0	VP1_30	Name VP1_31
+1	VP1_33	Prep Name
+1.0	VP1_32	Name VP1_33
+1	VP1_35	Prep Name
+1.0	VP1_34	Name VP1_35
+1.0	VP1_37	Pronoun VP1_38
+1	VP1_36	Prep Pronoun
+1.0	VP1_39	NP VP1_40
+1	VP1_38	Prep NP
+1	NP_29	Conj Name
+1	VP_7	Conj VP1
+1	VP1_27	Of Name
+1.0	VP2_7	AP VP2_8
+1	VP2_8	Conj AP
+1	VP1_24	Prep Name
+1	RELCLAUSE_61	Prep Pronoun
+1.0	RELCLAUSE_60	Verb2 RELCLAUSE_61
+1.0	VP2_4	Ving VP2_5
+1.0	VP2_5	NP VP2_6
+1	VP2_6	Prep NP
+1.0	VP1_25	Name VP1_26
+1	NP_27	Adj Noun
+1	VP2_1	Ving NP
+1.0	VP2_2	Ving VP2_3
+1	VP2_3	Prep NP
+1	NP_35	Prep Name
+1.0	NP_34	Noun NP_35
+1.0	S	NP VP
+1.0	S	S S_1
+1.0	S	NP VP1
+1.0	S	NP VP2
+1.0	S	NP Verb1
+1.0	S	NP Verb3
+1.0	S	Name VP
+1.0	S	Name VP1
+1.0	S	Name VP2
+1.0	S	Name Verb1
+1.0	S	Name Verb3
+1.0	S	Pronoun VP
+1.0	S	Pronoun VP1
+1.0	S	Pronoun VP2
+1.0	S	Pronoun Verb1
+1.0	S	Pronoun Verb3
+1.0	NP_36	APREC NP_37
+1.0	NP_31	Noun NP_32
+1	NP_30	Conj Name
+1	NP_16	That Verb1
+1	NP_32	Prep Name
+1.0	RELCLAUSE_58	Verb2 RELCLAUSE_59
+1.0	VP2_35	Name VP2_36
+1	VP_6	Conj Verb1
+1	NP_38	Prep Name
+1	RELCLAUSE_4	Prep NP
+1.0	RELCLAUSE_5	Verb5 RELCLAUSE_6
+1	RELCLAUSE_6	That RELCLAUSE
+1	RELCLAUSE_7	Verb5 Of
+1.0	RELCLAUSE_1	Verb1 RELCLAUSE_2
+1	RELCLAUSE_2	Prep NP
+1.0	RELCLAUSE_3	Verb2 RELCLAUSE_4
+1	VP2_30	Prep Name
+1.0	VP2_31	Ving VP2_32
+1.0	VP2_32	Name VP2_33
+1	VP2_33	Prep Name
+1.0	RELCLAUSE_8	Verb1 RELCLAUSE_9
+1	RELCLAUSE_9	Prep NP
+1	VP2_36	Prep Name
+1	VP2_37	Ving Pronoun
+1	VP_5	Conj Verb1
+1.0	Staff	staff
+1.0	RELCLAUSE_52	Verb2 RELCLAUSE_53
+1	RELCLAUSE_53	Prep Name
+1.0	RELCLAUSE_50	Verb2 RELCLAUSE_51
+1	RELCLAUSE_51	Prep Pronoun
+1.0	RELCLAUSE_56	Verb1 RELCLAUSE_57
+1	RELCLAUSE_57	Prep Pronoun
+1	VP1_68	Prep Pronoun
+1	RELCLAUSE_55	Prep Pronoun
+1	VP1_66	Prep Pronoun
+1.0	VP1_67	Pronoun VP1_68
+1	VP1_64	Prep Pronoun
+1.0	VP1_65	Pronoun VP1_66
+1	VP1_62	Prep Pronoun
+1.0	VP1_63	Pronoun VP1_64
+1	VP1_60	Prep Name
+1.0	VP1_61	Pronoun VP1_62
+1	VP2_27	Prep Name
+1.0	VP2_26	NP VP2_27
+1.0	VP2_25	Ving VP2_26
+1	VP2_24	Prep NP
+1.0	VP2_23	Name VP2_24
+1.0	VP2_22	Ving VP2_23
+1	VP2_21	Prep Name
+1.0	VP2_20	Ving VP2_21
+1	VP_4	Conj Verb1
+1	NP_73	Conj Name
+1.0	VP2_29	Name VP2_30
+1.0	VP2_28	Ving VP2_29
+1	NP_72	Conj Pronoun
+1	NP_39	That VP1
+1.0	RELCLAUSE_29	Verb2 RELCLAUSE_30
+1	VP1_19	Prep NP
+1.0	VP1_18	Name VP1_19
+1	VP_3	Conj Verb1
+1	NP_49	Conj Name
+1	VP1_13	Prep NP
+1.0	VP1_12	Name VP1_13
+1	VP1_11	Prep Name
+1	VP1_10	Of NP
+1	VP1_17	Prep Name
+1.0	VP1_16	Name VP1_17
+1	VP1_15	Prep Name
+1.0	VP1_14	NP VP1_15
+1.0	VP2_38	Ving VP2_39
+1	NP_23	Adj Noun
+1.0	RELCLAUSE	NP Verb1
+1.0	RELCLAUSE	NP RELCLAUSE_1
+1.0	RELCLAUSE	NP Verb2
+1.0	RELCLAUSE	NP RELCLAUSE_3
+1.0	RELCLAUSE	NP Verb4
+1.0	RELCLAUSE	NP RELCLAUSE_5
+1.0	RELCLAUSE	NP RELCLAUSE_7
+1.0	RELCLAUSE	Name Verb1
+1.0	RELCLAUSE	Name RELCLAUSE_8
+1.0	RELCLAUSE	NP RELCLAUSE_10
+1.0	RELCLAUSE	Name RELCLAUSE_12
+1.0	RELCLAUSE	Name Verb2
+1.0	RELCLAUSE	Name RELCLAUSE_14
+1.0	RELCLAUSE	NP RELCLAUSE_16
+1.0	RELCLAUSE	Name RELCLAUSE_18
+1.0	RELCLAUSE	Name Verb4
+1.0	RELCLAUSE	Name RELCLAUSE_20
+1.0	RELCLAUSE	Name RELCLAUSE_22
+1.0	RELCLAUSE	Name RELCLAUSE_23
+1.0	RELCLAUSE	Name RELCLAUSE_25
+1.0	RELCLAUSE	Name RELCLAUSE_27
+1.0	RELCLAUSE	Name RELCLAUSE_29
+1.0	RELCLAUSE	Pronoun Verb1
+1.0	RELCLAUSE	Pronoun RELCLAUSE_31
+1.0	RELCLAUSE	NP RELCLAUSE_33
+1.0	RELCLAUSE	Pronoun RELCLAUSE_35
+1.0	RELCLAUSE	Pronoun Verb2
+1.0	RELCLAUSE	Pronoun RELCLAUSE_37
+1.0	RELCLAUSE	NP RELCLAUSE_39
+1.0	RELCLAUSE	Pronoun RELCLAUSE_41
+1.0	RELCLAUSE	Pronoun Verb4
+1.0	RELCLAUSE	Pronoun RELCLAUSE_43
+1.0	RELCLAUSE	Pronoun RELCLAUSE_45
+1.0	RELCLAUSE	Name RELCLAUSE_46
+1.0	RELCLAUSE	Pronoun RELCLAUSE_48
+1.0	RELCLAUSE	Name RELCLAUSE_50
+1.0	RELCLAUSE	Pronoun RELCLAUSE_52
+1.0	RELCLAUSE	Pronoun RELCLAUSE_54
+1.0	RELCLAUSE	Pronoun RELCLAUSE_56
+1.0	RELCLAUSE	Pronoun RELCLAUSE_58
+1.0	RELCLAUSE	Pronoun RELCLAUSE_60
+1.0	VP2_52	Ving VP2_53
+1.0	VP2_53	Pronoun VP2_54
+1.0	VP2_50	Name VP2_51
+1	VP2_51	Prep Pronoun
+1.0	VP2_46	Ving VP2_47
+1	VP2_57	Prep Pronoun
+1	VP2_54	Prep Name
+1.0	VP2_55	Ving VP2_56
+1.0	NP	NP NP_1
+1.0	NP	Det1 Noun
+1.0	NP	Det1 NP_2
+1.0	NP	Det1 NP_4
+1.0	NP	Det1 NP_5
+1.0	NP	Det1 NP_8
+1.0	NP	Det1 NP_9
+1.0	NP	Det2 Noun
+1.0	NP	Det2 NP_12
+1.0	NP	Det2 NP_13
+1.0	NP	NP NP_14
+1.0	NP	NP NP_15
+1.0	NP	NP NP_16
+1.0	NP	NP NP_17
+1.0	NP	Det1 NP_18
+1.0	NP	Det1 NP_19
+1.0	NP	Det2 NP_22
+1.0	NP	Det1 NP_23
+1.0	NP	Det1 NP_24
+1.0	NP	Det2 NP_27
+1.0	NP	Name NP_28
+1.0	NP	NP NP_29
+1.0	NP	Name NP_30
+1.0	NP	Det1 NP_31
+1.0	NP	Det1 NP_33
+1.0	NP	Det1 NP_36
+1.0	NP	Name NP_39
+1.0	NP	Name NP_40
+1.0	NP	Name NP_41
+1.0	NP	Name NP_42
+1.0	NP	Det1 NP_43
+1.0	NP	Det1 NP_46
+1.0	NP	Name NP_49
+1.0	NP	Name NP_50
+1.0	NP	Pronoun NP_51
+1.0	NP	NP NP_52
+1.0	NP	Pronoun NP_53
+1.0	NP	Det1 NP_54
+1.0	NP	Det1 NP_56
+1.0	NP	Det1 NP_59
+1.0	NP	Pronoun NP_62
+1.0	NP	Pronoun NP_63
+1.0	NP	Pronoun NP_64
+1.0	NP	Pronoun NP_65
+1.0	NP	Det1 NP_66
+1.0	NP	Det1 NP_69
+1.0	NP	Name NP_72
+1.0	NP	Pronoun NP_73
+1.0	NP	Pronoun NP_74
+1.0	NP	Pronoun NP_75
+1.0	VP2_58	Ving VP2_59
+1.0	VP2_59	Pronoun VP2_60
+1.0	VP2_56	Pronoun VP2_57
+1.0	RELCLAUSE_25	Verb1 RELCLAUSE_26
+1	VP2_16	Conj Adj
+1	RELCLAUSE_24	Prep Name
+1	VP1_48	Prep Pronoun
+1	VP1_49	Prep Pronoun
+1	VP1_40	Prep Pronoun
+1.0	VP1_41	Pronoun VP1_42
+1	VP1_42	Prep Pronoun
+1.0	VP1_43	Pronoun VP1_44
+1	VP1_44	Prep NP
+1.0	VP1_45	NP VP1_46
+1	VP1_46	Prep Pronoun
+1.0	VP1_47	Pronoun VP1_48
+1.0	VP2_41	Pronoun VP2_42
+1.0	VP2_40	Ving VP2_41
+1.0	VP2_43	Ving VP2_44
+1	VP2_42	Prep NP
+1	VP2_45	Prep Pronoun
+1.0	VP2_44	NP VP2_45
+1.0	VP2_47	Pronoun VP2_48
+1.0	VP2_17	Adj VP2_18
+1.0	VP2_49	Ving VP2_50
+1	VP2_48	Prep Pronoun
+1	NP_52	Conj Pronoun
+1	NP_7	Prep NP
+1.0	NP_6	Noun NP_7
+1.0	NP_5	AP NP_6
+1	NP_4	AP Noun
+1	NP_3	Prep NP
+1.0	NP_2	Noun NP_3
+1	NP_1	Conj NP
+1	VP_13	Conj Verb3
+1	VP_12	Conj Verb3
+1	VP_11	Conj Verb1
+1	VP_10	Conj Verb3
+1.0	NP_9	APREC NP_10
+1	NP_8	APREC Noun
+1	RELCLAUSE_49	Prep Name
+1.0	RELCLAUSE_48	Verb1 RELCLAUSE_49
+1	RELCLAUSE_45	Verb5 Of
+1	RELCLAUSE_44	That RELCLAUSE
+1	RELCLAUSE_47	Prep Pronoun
+1.0	RELCLAUSE_46	Verb1 RELCLAUSE_47
+1.0	RELCLAUSE_41	Verb2 RELCLAUSE_42
+1	RELCLAUSE_40	Prep Pronoun
+1.0	RELCLAUSE_43	Verb5 RELCLAUSE_44
+1	RELCLAUSE_42	Prep Pronoun
+1.0	VP1	Verb1 NP
+1.0	VP1	Verb1 VP1_1
+1.0	VP1	Verb1 VP1_2
+1.0	VP1	Verb2 NP
+1.0	VP1	Verb2 VP1_4
+1.0	VP1	Verb3 VP1_6
+1.0	VP1	Verb4 NP
+1.0	VP1	Verb4 VP1_7
+1.0	VP1	Verb5 VP1_9
+1.0	VP1	Verb5 VP1_10
+1.0	VP1	Verb1 Name
+1.0	VP1	Verb1 VP1_11
+1.0	VP1	Verb1 VP1_12
+1.0	VP1	Verb1 VP1_14
+1.0	VP1	Verb1 VP1_16
+1.0	VP1	Verb2 Name
+1.0	VP1	Verb2 VP1_18
+1.0	VP1	Verb2 VP1_20
+1.0	VP1	Verb2 VP1_22
+1.0	VP1	Verb3 VP1_24
+1.0	VP1	Verb4 Name
+1.0	VP1	Verb4 VP1_25
+1.0	VP1	Verb5 VP1_27
+1.0	VP1	Verb1 VP1_28
+1.0	VP1	Verb1 VP1_30
+1.0	VP1	Verb2 VP1_32
+1.0	VP1	Verb2 VP1_34
+1.0	VP1	Verb1 Pronoun
+1.0	VP1	Verb1 VP1_36
+1.0	VP1	Verb1 VP1_37
+1.0	VP1	Verb1 VP1_39
+1.0	VP1	Verb1 VP1_41
+1.0	VP1	Verb2 Pronoun
+1.0	VP1	Verb2 VP1_43
+1.0	VP1	Verb2 VP1_45
+1.0	VP1	Verb2 VP1_47
+1.0	VP1	Verb3 VP1_49
+1.0	VP1	Verb4 Pronoun
+1.0	VP1	Verb4 VP1_50
+1.0	VP1	Verb5 VP1_52
+1.0	VP1	Verb1 VP1_53
+1.0	VP1	Verb1 VP1_55
+1.0	VP1	Verb2 VP1_57
+1.0	VP1	Verb2 VP1_59
+1.0	VP1	Verb1 VP1_61
+1.0	VP1	Verb1 VP1_63
+1.0	VP1	Verb2 VP1_65
+1.0	VP1	Verb2 VP1_67
+1.0	VP2	Auxv VP2_1
+1.0	VP2	Auxv VP2_2
+1.0	VP2	Auxv VP2_4
+1.0	VP2	Auxv Ving
+1.0	VP2	Auxv AP
+1.0	VP2	Auxv VP2_7
+1.0	VP2	Auxv NP
+1.0	VP2	Auxv Adj
+1.0	VP2	Auxv VP2_9
+1.0	VP2	Auxv VP2_11
+1.0	VP2	Auxv VP2_13
+1.0	VP2	Auxv VP2_15
+1.0	VP2	Auxv VP2_17
+1.0	VP2	Auxv VP2_19
+1.0	VP2	Auxv VP2_20
+1.0	VP2	Auxv VP2_22
+1.0	VP2	Auxv VP2_25
+1.0	VP2	Auxv VP2_28
+1.0	VP2	Auxv Name
+1.0	VP2	Auxv VP2_31
+1.0	VP2	Auxv VP2_34
+1.0	VP2	Auxv VP2_37
+1.0	VP2	Auxv VP2_38
+1.0	VP2	Auxv VP2_40
+1.0	VP2	Auxv VP2_43
+1.0	VP2	Auxv VP2_46
+1.0	VP2	Auxv Pronoun
+1.0	VP2	Auxv VP2_49
+1.0	VP2	Auxv VP2_52
+1.0	VP2	Auxv VP2_55
+1.0	VP2	Auxv VP2_58
+1	VP2_39	Prep Pronoun
+1.0	NP_37	Noun NP_38
+1.0	VP	VP1 VP_1
+1.0	VP	Verb1 VP_2
+1.0	VP	VP1 VP_3
+1.0	VP	Verb1 VP_4
+1.0	VP	Verb1 VP_5
+1.0	VP	Verb1 VP_6
+1.0	VP	Verb3 VP_7
+1.0	VP	VP1 VP_8
+1.0	VP	Verb3 VP_9
+1.0	VP	Verb1 VP_10
+1.0	VP	Verb3 VP_11
+1.0	VP	Verb3 VP_12
+1.0	VP	Verb3 VP_13
+1.0	AP	Adv AP
+1.0	AP	Adv Adj
+1.0	Chief	chief
+1.0	Noun	Chief Noun_1
+1	NP_71	Prep Pronoun
+1.0	NP_70	Noun NP_71
+1	NP_45	Prep Name
+1	NP_58	Prep Pronoun
+1	NP_75	Conj Pronoun
+1	NP_74	Conj Pronoun
+1	RELCLAUSE_28	Prep Name
+1	NP_12	AP Noun
+1	S_1	Conj S
+1	NP_11	Prep NP
+1	RELCLAUSE_38	Prep NP
+1.0	RELCLAUSE_39	Verb2 RELCLAUSE_40
+1	VP1_21	Prep Name
+1	RELCLAUSE_30	Prep Name
+1.0	RELCLAUSE_31	Verb1 RELCLAUSE_32
+1	RELCLAUSE_32	Prep NP
+1.0	RELCLAUSE_33	Verb1 RELCLAUSE_34
+1	RELCLAUSE_34	Prep Pronoun
+1.0	RELCLAUSE_35	Verb1 RELCLAUSE_36
+1	RELCLAUSE_36	Prep Pronoun
+1.0	RELCLAUSE_37	Verb2 RELCLAUSE_38
+# PASTE END
 
 # Vocabulary.  Your program can see that "ate" is a terminal
 # symbol because there exists no rule for rewriting it.
-# Any symbol that can rewrite as a terminal (or a string of 
-# terminals, like "chief of staff") is called a "preterminal."  Notice 
+# Any symbol that can rewrite as a terminal (or a string of
+# terminals, like "chief of staff") is called a "preterminal."  Notice
 # that a preterminal is a special kind of nonterminal.
 
-1	Verb	ate
-1	Verb	wanted
-1	Verb	kissed
-1	Verb	understood
-1	Verb	pickled
-1	Verb	sighed
-1	Verb	thought
-1	Verb	worked
-1	Verb	choose
-1	Verb	chooses
-0.5	Verb	perplexed
+1	VerbPresent	chooses
+
+1	Verb1	ate
+
+1	Verb2	wanted
+1	Verb2	kissed
+1	Verb2	pickled
+1   Verb2   choose
+
+# In principle, "wanted" should be only of type Verb2, but we need to pass the silly
+# test: "Sally and the president wanted and ate a sandwich ."
+1   Verb3   wanted
+1	Verb3	sighed
+1	Verb3	worked
+
+1	Verb4	perplexed
+
+1	Verb5	thought
+
 
 1	Ving	eating
 
-1	Pvoice	lazy
 
-1	Det	the
-1	Det	a
-1	Det	every
+# Determiner that creates a specific NP. This is a NP: "the sandwich on the floor"
+1	Det1	the
+1	Det1	every
+# Determiner that creates . This is not a NP: "a sandwich on the floor"
+1	Det2	a
 
 1	Noun	president
 1	Noun	sandwich
 1	Noun	pickle
-1	Noun	chief
-1	Noun	staff
 1	Noun	proposal
 1	Noun	floor
 1	Noun	desk
-1	Noun	citizens
+1	Nouns	citizens
+
+1   Name    Sally
+
+1   Pronoun    it
 
 1	Adj	fine
 1	Adj	delicious
 1	Adj	perplexed
 1	Adj	pickled
+1	Adj 	lazy
 
 1	Adv very
 
 1	Prep	with
-1	Prep	on
-1	Prep	under
 1	Prep	in
-1	Prep	of
-1	Prep	and
-0.5	Prep	that
+1	Prep	on
 
-1	Conj	that
+1	That	that
+
+1	Conj	and
+1	Conj	or
 
 1   Auxv    is
-
-1   NP    Sally
-1   NP    it
