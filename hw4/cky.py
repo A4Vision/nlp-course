@@ -1,8 +1,7 @@
+import sys
 from collections import defaultdict
-from itertools import chain
 
 from PCFG import PCFG
-import math
 
 
 def load_sents_to_parse(filename):
@@ -92,22 +91,7 @@ class Node(object):
 
 
 if __name__ == '__main__':
-    import sys
-    import os
-    os.system("python convert_to_cnf.py grammar2.txt grammar2-CNF.txt")
-    os.system("python convert_to_cnf.py grammar3.txt grammar3-CNF.txt")
     pcfg = PCFG.from_file_assert_cnf(sys.argv[1])
     sents_to_parse = load_sents_to_parse(sys.argv[2])
     for sent in sents_to_parse:
-        if "FAILED" in cky(pcfg, sent):
-            print sent
-
-    if len(sys.argv) > 3:
-        print "================"
-        print "\tBAD"
-        print "================"
-        sents_bad = load_sents_to_parse(sys.argv[3])
-        for sent in sents_bad:
-            if "FAILED" not in cky(pcfg, sent):
-                print sent
-                print cky(pcfg, sent)
+        print cky(pcfg, sent)

@@ -4,7 +4,6 @@ import os
 import itertools
 
 import PCFG
-import collections
 
 
 PASTE_START = "# PASTE START"
@@ -125,9 +124,7 @@ def to_strings(pcfg):
     return res
 
 
-def generate_file():
-    source = sys.argv[1]
-    dst = sys.argv[2]
+def generate_file(source, dst):
     assert os.path.exists(dst) and os.path.exists(source)
     cnf_pcfg = create_cnf_rules(PCFG.PCFG.from_file(source))
     content = "\n".join(to_strings(cnf_pcfg))
@@ -137,4 +134,4 @@ def generate_file():
 
 
 if __name__ == '__main__':
-    generate_file()
+    generate_file(sys.argv[1], sys.argv[2])
