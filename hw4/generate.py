@@ -1,7 +1,7 @@
 from PCFG import PCFG
+import sys
 
 if __name__ == '__main__':
-    import sys
     pcfg = PCFG.from_file(sys.argv[1])
     num_of_sents = 1
     print_tree = False
